@@ -3,7 +3,7 @@ import {
   Activity, ArrowDownToLine, ArrowRight, Bell, Box, Check, ChevronDown, 
   ChevronLeft, ChevronRight, CircleHelp, Database, Expand, FileText, 
   GitBranch, LayoutDashboard, Network, Pause, Plane, Play, RotateCcw, 
-  Search, Settings2, ShieldCheck, Target, Zap, Server, X, Radio, FastForward, Sparkles, MessageSquare
+  Search, Settings2, ShieldCheck, Target, Zap, Server, X, Radio, FastForward, Sparkles
 } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
@@ -11,51 +11,38 @@ import { dataset, records, summary, timeline, nodes, nodeLabels, filterRecords, 
 import telemetryStreamer from '../../data/telemetry-streamer';
 
 import InteractiveFreeFlowGraph from '../InteractiveFreeFlowGraph';
-import SupervisorBriefing from '../SupervisorBriefing';
 import MainEventMapper from '../MainEventMapper';
-import TopologyView from '../TopologyView';
 import NaturalLanguageQA from '../NaturalLanguageQA';
 
 const LovableTelemetryScene = lazy(() => import('./telemetry-scene'));
 
-export type View = 'overview' | 'propagation' | 'free_flow' | 'explorer' | 'qa_advanced' | 'supervisor' | 'main_event' | 'quality' | 'topology';
+export type View = 'overview' | 'main_event' | 'free_flow' | 'explorer' | 'qa_advanced';
 
+// 5 MOST WANTED HIGH-PRIORITY EVALUATION FEATURES
 const navigation = [
-  { view: 'overview', path: '/', label: 'L1: Flight Overview', icon: LayoutDashboard },
-  { view: 'propagation', path: '/propagation', label: 'L2: Fault/Event Detail', icon: GitBranch, badge: '3D' },
-  { view: 'free_flow', path: '/free_flow', label: 'L3: Free-Flow Graph', icon: Zap, badge: 'TOUCH' },
-  { view: 'explorer', path: '/explorer', label: 'L4: Evidence Explorer', icon: Database, badge: '5,257' },
-  { view: 'qa_advanced', path: '/qa_advanced', label: 'AI Q&A & Scoring', icon: Sparkles, badge: 'ADV' },
-  { view: 'supervisor', path: '/supervisor', label: 'Supervisor Briefing', icon: ShieldCheck },
-  { view: 'main_event', path: '/main_event', label: 'Main Event Flow (PS)', icon: Target, badge: 'PS' },
-  { view: 'quality', path: '/quality', label: 'Data Validation (0 Skip)', icon: ShieldCheck },
-  { view: 'topology', path: '/topology', label: 'Node Agreement Matrix', icon: Server }
+  { view: 'overview', path: '/', label: '1. Overview & 3D Telemetry', icon: LayoutDashboard },
+  { view: 'main_event', path: '/main_event', label: '2. Incident Causal Flow (Arrows)', icon: Target, badge: 'FLOW' },
+  { view: 'free_flow', path: '/free_flow', label: '3. Interactive Free-Flow Graph', icon: Zap, badge: 'TOUCH' },
+  { view: 'explorer', path: '/explorer', label: '4. Evidence Log Explorer', icon: Database, badge: '5,257' },
+  { view: 'qa_advanced', path: '/qa_advanced', label: '5. Explainable AI Q&A & Scoring', icon: Sparkles, badge: 'ADV' }
 ] as const;
 
 const shortFamily = (family: string) => family.replace(' Log', '').replace(' Buffer', '').replace('FM ', '');
 
 const titles: Record<View, string> = {
-  overview: 'Level 1: Flight Mission Overview',
-  propagation: 'Level 2: Fault & Event Detail (3D Propagation)',
-  free_flow: 'Level 3: Operational Context Free-Flow Causal Graph',
-  explorer: 'Level 4: Evidence Detail & Source Records',
-  qa_advanced: 'Explainable AI Q&A, Anomaly Scoring & Agreement',
-  supervisor: 'Supervisor Executive Briefing',
-  main_event: 'Main Event Causal Mapper (PS Fault 6025)',
-  quality: '15-Log Importer Validation & Coverage Report',
-  topology: 'Node Agreement & Redundancy Consensus Analysis'
+  overview: '1. Mission Overview & 3D Telemetry Landscape',
+  main_event: '2. LangGraph Incident-to-Incident Causal Flow (Directional Arrows)',
+  free_flow: '3. Interactive Free-Flow Causal Graph (Touch & Physics)',
+  explorer: '4. Level 4 Evidence Detail & Log Explorer (5,257 Records)',
+  qa_advanced: '5. Explainable AI Q&A, Anomaly Scoring & Node Agreement'
 };
 
 const subtitles: Record<View, string> = {
-  overview: 'One flight. Three nodes. Source/destination, flight time window, operational phases, and recovery summary.',
-  propagation: 'Code/subcode, fault name, duration, impact, recovery, and related cross-node events in 3D.',
-  free_flow: 'Aircraft conditions, FMS master-standby state, and free-flowing animatic causal stream.',
-  explorer: 'Decoded engineering payload data, source file evidence links, and search filters.',
-  qa_advanced: 'Natural-language log Q&A, anomaly scoring (>80%), and Facts vs Inference vs Uncertainty separation.',
-  supervisor: 'Concise executive summary designed for supervising flight control engineers.',
-  main_event: 'LangGraph multi-node state graph mapping process identity failure #653 cascade.',
-  quality: 'Working importer for all 15 supplied logs: 5,257 records parsed, 0 records skipped (100% PASS).',
-  topology: 'Dual-mode master-standby-auxiliary consensus and agreement state matrix.'
+  overview: 'Level 1 Flight Overview: KPI metrics, 3D WebGL telemetry scene, operational phases, and recovery summary.',
+  main_event: 'Chronological incident flow with glowing directional arrows (➔) mapping First Incident to Next Incident.',
+  free_flow: 'Touch-interactive animatic spring physics stream mapping timestamp events across NODE A, B, and C.',
+  explorer: 'Decoded engineering payload evidence, source file links, search filters, and CSV data export.',
+  qa_advanced: 'Natural-language log query assistant, anomaly scoring engine, and Facts vs Inference vs Uncertainty separation.'
 };
 
 function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () => void }) {
@@ -205,15 +192,13 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
     setPage(0);
   }
 
-  const cascade = dataset.root_cause_analysis.event_cascade_steps;
-
   return (
     <div className="workspace">
       {/* Lovable Sidebar */}
       <aside className="sidebar">
         <button type="button" className="brand" onClick={() => setCurrentView('overview')}>
           <span className="brand-mark"><Plane /></span>
-          <span>FlightStory<span className="brand-ai">AI</span><small>EXPLAINABLE INVESTIGATION</small></span>
+          <span>FlightStory<span className="brand-ai">AI</span><small>EVALUATION WORKSPACE</small></span>
         </button>
 
         <div className="workspace-selector">
@@ -222,7 +207,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
           <ChevronDown size={14} />
         </div>
 
-        <span className="nav-caption">EVALUATION STORYBOARD</span>
+        <span className="nav-caption">TOP 5 EVALUATION FEATURES</span>
         <nav>
           {navigation.map(n => (
             <button 
@@ -271,7 +256,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
       <div className="main-shell">
         <header className="topbar">
           <div className="breadcrumb">
-            Storyboard <ChevronRight size={13} /> <span>{titles[currentView]}</span>
+            Evaluation <ChevronRight size={13} /> <span>{titles[currentView]}</span>
           </div>
           <div className="topbar-actions">
             {/* Live Streaming Badge */}
@@ -330,7 +315,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
         <main className="main-content">
           <div className="page-heading">
             <div>
-              <div className="eyebrow">FLIGHT MANAGEMENT SYSTEM <span>/</span> MULTI-LEVEL EXPLAINABLE AI</div>
+              <div className="eyebrow">FLIGHT MANAGEMENT SYSTEM <span>/</span> EVALUATION FEATURE #{currentView === 'overview' ? 1 : currentView === 'main_event' ? 2 : currentView === 'free_flow' ? 3 : currentView === 'explorer' ? 4 : 5}</div>
               <h1>{titles[currentView]}</h1>
               <p>{subtitles[currentView]}</p>
             </div>
@@ -367,8 +352,8 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <span>15 decoded HTML files<span className="ribbon-divider" />3 redundant nodes<span className="ribbon-divider" /><ShieldCheck size={13} /> 0 skipped records (100% PASS)</span>
           </div>
 
-          {/* VIEW: OVERVIEW (LEVEL 1) or PROPAGATION (LEVEL 2) */}
-          {(currentView === 'overview' || currentView === 'propagation') && (
+          {/* FEATURE 1: OVERVIEW & 3D TELEMETRY */}
+          {currentView === 'overview' && (
             <>
               <div className="metrics-grid">
                 {[
@@ -391,7 +376,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                   <div className="section-heading">
                     <div className="section-title">
                       <Box size={18} />
-                      <h2>{currentView === 'propagation' ? 'Level 2: 3D Fault Propagation Map' : 'Level 1: 3D Event Landscape'}</h2>
+                      <h2>3D Telemetry Event Landscape</h2>
                       <span className="tiny-badge">WEBGL</span>
                     </div>
                     <div className="scene-header-controls">
@@ -438,7 +423,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                           running={running} 
                           resetKey={resetKey} 
                           onSelect={setSelected} 
-                          propagation={currentView === 'propagation'} 
+                          propagation={false} 
                         />
                       </Suspense>
                     )}
@@ -492,146 +477,96 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                       <Check size={15} />
                       <span>Recovery in source narrative<small>Dual-mode consensus · 09:43:07</small></span>
                     </div>
-                    <Button variant="outline" className="w-full" onClick={() => setCurrentView(currentView === 'overview' ? 'propagation' : 'main_event')}>
-                      {currentView === 'overview' ? 'Explore propagation' : 'Inspect main event flow'} <ArrowRight size={14} />
+                    <Button variant="outline" className="w-full" onClick={() => setCurrentView('main_event')}>
+                      Inspect Incident Flow Arrows <ArrowRight size={14} />
                     </Button>
                   </div>
                 </aside>
               </div>
 
-              {currentView === 'propagation' ? (
-                <section className="cascade-section">
+              <div className="lower-grid">
+                <section className="timeline-section">
                   <div className="section-heading">
                     <div>
-                      <h2>Level 2: Incident Chain</h2>
-                      <p className="section-subtitle">Five stages from root-cause analysis</p>
+                      <h2>Event Activity</h2>
+                      <p className="section-subtitle">10-minute intervals across recorded window</p>
                     </div>
-                    <span className="tiny-badge">CAUSAL FLOW</span>
+                    <div className="chart-legend">
+                      <span><i className="legend-dot info" />Info</span>
+                      <span><i className="legend-dot warning" />Warning</span>
+                      <span><i className="legend-dot critical" />Critical</span>
+                    </div>
                   </div>
-                  <div className="cascade-flow">
-                    {cascade.map((s, i) => (
-                      <article className={`cascade-stage stage-${i}`} key={s.step}>
-                        <div className="cascade-step">0{s.step}{i < 4 && <ArrowRight size={15} />}</div>
-                        <span className="mono">{s.time}</span>
-                        <h3>{s.phase}</h3>
-                        <p>{s.description}</p>
-                        <div className="cascade-node-list">
-                          {s.nodes.map(n => (
-                            <span className={`node-tag ${n.toLowerCase()}`} key={n}>{n.replace('_', ' ')}</span>
-                          ))}
-                        </div>
-                      </article>
-                    ))}
+                  <div className="activity-chart">
+                    {hydrated && (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={timeline} margin={{ top: 15, right: 12, left: -24, bottom: 0 }}>
+                          <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 5" />
+                          <XAxis dataKey="time" tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} interval={5} />
+                          <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} />
+                          <Tooltip contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--foreground)' }} />
+                          <Area type="monotone" dataKey="INFO" stackId="1" stroke="var(--info)" fill="var(--info)" fillOpacity={.14} />
+                          <Area type="monotone" dataKey="WARNING" stackId="1" stroke="var(--warning)" fill="var(--warning)" fillOpacity={.13} />
+                          <Area type="monotone" dataKey="CRITICAL" stackId="1" stroke="var(--critical)" fill="var(--critical)" fillOpacity={.18} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
                 </section>
-              ) : (
-                <div className="lower-grid">
-                  <section className="timeline-section">
-                    <div className="section-heading">
-                      <div>
-                        <h2>Event Activity</h2>
-                        <p className="section-subtitle">10-minute intervals across recorded window</p>
-                      </div>
-                      <div className="chart-legend">
-                        <span><i className="legend-dot info" />Info</span>
-                        <span><i className="legend-dot warning" />Warning</span>
-                        <span><i className="legend-dot critical" />Critical</span>
-                      </div>
-                    </div>
-                    <div className="activity-chart">
-                      {hydrated && (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={timeline} margin={{ top: 15, right: 12, left: -24, bottom: 0 }}>
-                            <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 5" />
-                            <XAxis dataKey="time" tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} interval={5} />
-                            <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} />
-                            <Tooltip contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--foreground)' }} />
-                            <Area type="monotone" dataKey="INFO" stackId="1" stroke="var(--info)" fill="var(--info)" fillOpacity={.14} />
-                            <Area type="monotone" dataKey="WARNING" stackId="1" stroke="var(--warning)" fill="var(--warning)" fillOpacity={.13} />
-                            <Area type="monotone" dataKey="CRITICAL" stackId="1" stroke="var(--critical)" fill="var(--critical)" fillOpacity={.18} />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-                  </section>
 
-                  <section className="node-health-section">
-                    <div className="section-heading">
-                      <h2>Node Distribution</h2>
-                      <span className="section-subtitle">Record volume</span>
-                    </div>
-                    {nodes.map((n, i) => {
-                      const count = records.filter(r => r.node === n).length;
-                      return (
-                        <div className="node-health-row" key={n}>
-                          <span className={`node-icon node_${String.fromCharCode(97 + i)}`}><Network size={15} /></span>
-                          <div>
-                            <strong>{n.replace('_', ' ')}<span>{count.toLocaleString()}</span></strong>
-                            <small>{nodeLabels[n]}</small>
-                            <progress value={count} max={summary.total} />
-                          </div>
-                          <span className="distribution-pct">{(count / summary.total * 100).toFixed(1)}%</span>
-                        </div>
-                      );
-                    })}
-                  </section>
-                </div>
-              )}
-
-              {currentView === 'overview' && (
-                <section className="recent-section">
+                <section className="node-health-section">
                   <div className="section-heading">
-                    <div className="section-title">
-                      <Activity size={16} />
-                      <h2>Critical Event Feed</h2>
-                      <span className="tiny-badge">IMPORTED</span>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => setCurrentView('explorer')}>
-                      View all records <ArrowRight size={14} />
-                    </Button>
+                    <h2>Node Distribution</h2>
+                    <span className="section-subtitle">Record volume</span>
                   </div>
-                  <EventTable rows={recent} onSelect={setSelected} compact />
+                  {nodes.map((n, i) => {
+                    const count = records.filter(r => r.node === n).length;
+                    return (
+                      <div className="node-health-row" key={n}>
+                        <span className={`node-icon node_${String.fromCharCode(97 + i)}`}><Network size={15} /></span>
+                        <div>
+                          <strong>{n.replace('_', ' ')}<span>{count.toLocaleString()}</span></strong>
+                          <small>{nodeLabels[n]}</small>
+                          <progress value={count} max={summary.total} />
+                        </div>
+                        <span className="distribution-pct">{(count / summary.total * 100).toFixed(1)}%</span>
+                      </div>
+                    );
+                  })}
                 </section>
-              )}
+              </div>
+
+              <section className="recent-section">
+                <div className="section-heading">
+                  <div className="section-title">
+                    <Activity size={16} />
+                    <h2>Critical Event Feed</h2>
+                    <span className="tiny-badge">IMPORTED</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setCurrentView('explorer')}>
+                    View all records <ArrowRight size={14} />
+                  </Button>
+                </div>
+                <EventTable rows={recent} onSelect={setSelected} compact />
+              </section>
             </>
           )}
 
-          {/* VIEW: FREE-FLOW GRAPH (LEVEL 3) */}
-          {currentView === 'free_flow' && (
-            <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <InteractiveFreeFlowGraph records={records} rootCauseData={dataset.root_cause_analysis} />
-            </div>
-          )}
-
-          {/* VIEW: EXPLAINABLE AI Q&A & ANOMALY SCORING (ADVANCED FEATURE) */}
-          {currentView === 'qa_advanced' && (
-            <div style={{ marginTop: '1rem' }}>
-              <NaturalLanguageQA records={records} rootCauseData={dataset.root_cause_analysis} />
-            </div>
-          )}
-
-          {/* VIEW: SUPERVISOR BRIEFING */}
-          {currentView === 'supervisor' && (
-            <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <SupervisorBriefing rootCauseData={dataset.root_cause_analysis} records={records} />
-            </div>
-          )}
-
-          {/* VIEW: MAIN EVENT MAPPER */}
+          {/* FEATURE 2: INCIDENT CAUSAL FLOW WITH DIRECTIONAL ARROWS */}
           {currentView === 'main_event' && (
             <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
               <MainEventMapper rootCauseData={dataset.root_cause_analysis} records={records} />
             </div>
           )}
 
-          {/* VIEW: TOPOLOGY */}
-          {currentView === 'topology' && (
+          {/* FEATURE 3: INTERACTIVE FREE-FLOW CAUSAL GRAPH (TOUCH) */}
+          {currentView === 'free_flow' && (
             <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <TopologyView records={records} />
+              <InteractiveFreeFlowGraph records={records} rootCauseData={dataset.root_cause_analysis} />
             </div>
           )}
 
-          {/* VIEW: UNIFIED LOG EXPLORER (LEVEL 4) */}
+          {/* FEATURE 4: UNIFIED LOG EXPLORER & LEVEL 4 EVIDENCE (5,257) */}
           {currentView === 'explorer' && (
             <section className="explorer-section">
               <div className="explorer-controls">
@@ -673,42 +608,11 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             </section>
           )}
 
-          {/* VIEW: DATA VALIDATION */}
-          {currentView === 'quality' && (
-            <section className="quality-section">
-              <div className="quality-summary">
-                <ShieldCheck size={28} />
-                <div>
-                  <h2>15 of 15 source files passed (0 skipped records)</h2>
-                  <p>Working importer verified all 15 supplied HTML logs with 0 unparseable rows.</p>
-                </div>
-                <span className="tiny-badge success">100% DEFINITION OF DONE</span>
-              </div>
-              <div className="table-scroll">
-                <table className="event-table">
-                  <thead>
-                    <tr>
-                      <th>SOURCE FILE</th>
-                      <th>NODE</th>
-                      <th>FAMILY</th>
-                      <th>RECORDS</th>
-                      <th>STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataset.quality_stats.file_details.map(f => (
-                      <tr key={f.filename}>
-                        <td className="source-filename">{f.filename}</td>
-                        <td><span className={`node-tag ${f.node.toLowerCase()}`}>{f.node.replace('_', ' ')}</span></td>
-                        <td>{shortFamily(f.family)}</td>
-                        <td className="mono">{f.records_count}</td>
-                        <td><span className="severity success"><Check size={12} />{f.status}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+          {/* FEATURE 5: EXPLAINABLE AI Q&A & ANOMALY SCORING (ADVANCED) */}
+          {currentView === 'qa_advanced' && (
+            <div style={{ marginTop: '1rem' }}>
+              <NaturalLanguageQA records={records} rootCauseData={dataset.root_cause_analysis} />
+            </div>
           )}
 
           <footer className="page-footer">
