@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, Eye, ChevronLeft, ChevronRight, Download, RefreshCw } from 'lucide-react';
+import { Search, Filter, Eye, ChevronLeft, ChevronRight, Download, RefreshCw, Zap } from 'lucide-react';
 
 export default function ExplorerTab({ records, onSelectRecord }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +24,7 @@ export default function ExplorerTab({ records, onSelectRecord }) {
       // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const textToMatch = `${r.node} ${r.log_family} ${r.timestamp_display} ${r.sequence} ${r.fault_code} ${r.fault_name} ${r.message} ${r.filename}`.toLowerCase();
+        const textToMatch = `${r.node} ${r.log_family} ${r.timestamp_display} ${r.sequence} ${r.fault_code} ${r.fault_name} ${r.message} ${r.event_flow || ''} ${r.filename}`.toLowerCase();
         if (!textToMatch.includes(q)) return false;
       }
 
@@ -50,7 +50,7 @@ export default function ExplorerTab({ records, onSelectRecord }) {
             <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#9ca3af' }} />
             <input 
               type="text"
-              placeholder="Search across all 5,257 records (Fault Code, Message, Sequence)..."
+              placeholder="Search across 5,257 records (Fault Code, Event Flow, Message)..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="input-field"
@@ -130,7 +130,7 @@ export default function ExplorerTab({ records, onSelectRecord }) {
 
       {/* Main Table */}
       <div className="glass-card" style={{ padding: '0.5rem' }}>
-        <div className="table-container" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+        <div className="table-container" style={{ maxHeight: '620px', overflowY: 'auto' }}>
           <table className="custom-table">
             <thead>
               <tr>
@@ -138,9 +138,9 @@ export default function ExplorerTab({ records, onSelectRecord }) {
                 <th>Node</th>
                 <th>Log Family</th>
                 <th>Date & Time</th>
-                <th>Seq / Serial</th>
                 <th>Severity</th>
                 <th>Fault / Event Message</th>
+                <th style={{ color: '#38bdf8' }}>⚡ Event Flow / LangGraph Causal Mapping</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -162,15 +162,18 @@ export default function ExplorerTab({ records, onSelectRecord }) {
                     <td className="font-mono" style={{ color: '#38bdf8', fontSize: '0.78rem' }}>
                       {r.timestamp_display}
                     </td>
-                    <td className="font-mono">{r.sequence || '-'}</td>
                     <td>
                       <span className={`badge badge-${r.severity.toLowerCase()}`}>
                         {r.severity}
                       </span>
                     </td>
-                    <td style={{ maxWidth: '350px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {r.fault_code && <strong style={{ color: '#f87171', marginRight: '6px' }}>[{r.fault_code}]</strong>}
                       {r.message || r.fault_name || 'Decoded log entry'}
+                    </td>
+                    {/* NEW EVENT FLOW / CAUSAL MAPPING COLUMN */}
+                    <td style={{ maxWidth: '340px', fontSize: '0.78rem', color: r.fault_code === 6025 ? '#f87171' : '#cbd5e1' }}>
+                      {r.event_flow || 'Sequential telemetry stream mapped in LangGraph.'}
                     </td>
                     <td>
                       <button 

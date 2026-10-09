@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import KPICards from './components/KPICards';
+import InteractiveFreeFlowGraph from './components/InteractiveFreeFlowGraph';
 import SupervisorBriefing from './components/SupervisorBriefing';
 import LogVisualization3D from './components/LogVisualization3D';
 import MainEventMapper from './components/MainEventMapper';
@@ -14,7 +15,7 @@ import DetailModal from './components/DetailModal';
 import datasetJson from './data/honeywell_fms_dataset.json';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('supervisor');
+  const [activeTab, setActiveTab] = useState('free_flow');
   const [globalSearch, setGlobalSearch] = useState('');
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [records, setRecords] = useState([]);
@@ -32,7 +33,7 @@ export default function App() {
   // CSV Export functionality
   const handleExportCSV = () => {
     if (!records.length) return;
-    const headers = ['id', 'node', 'log_family', 'timestamp_display', 'sequence', 'severity', 'fault_code', 'fault_name', 'message'];
+    const headers = ['id', 'node', 'log_family', 'timestamp_display', 'sequence', 'severity', 'fault_code', 'fault_name', 'message', 'event_flow'];
     const rows = records.map(r => [
       r.id,
       `"${r.node}"`,
@@ -42,7 +43,8 @@ export default function App() {
       `"${r.severity}"`,
       `"${r.fault_code || ''}"`,
       `"${r.fault_name || ''}"`,
-      `"${(r.message || '').replace(/"/g, '""')}"`
+      `"${(r.message || '').replace(/"/g, '""')}"`,
+      `"${(r.event_flow || '').replace(/"/g, '""')}"`
     ]);
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -73,6 +75,10 @@ export default function App() {
         <KPICards stats={qualityStats} />
 
         {/* Tab Views */}
+        {activeTab === 'free_flow' && (
+          <InteractiveFreeFlowGraph records={records} rootCauseData={rootCauseData} />
+        )}
+
         {activeTab === 'supervisor' && (
           <SupervisorBriefing rootCauseData={rootCauseData} records={records} />
         )}
@@ -106,10 +112,6 @@ export default function App() {
             records={records} 
             onSelectRecord={(r) => setSelectedRecord(r)}
           />
-        )}
-
-        {activeTab === 'validation' && (
-          <ValidationTab qualityStats={qualityStats} />
         )}
 
       </main>

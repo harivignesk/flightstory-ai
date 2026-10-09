@@ -1,5 +1,6 @@
 import React from 'react';
 import { 
+  Zap, 
   ShieldCheck, 
   Box, 
   Target, 
@@ -8,7 +9,6 @@ import {
   AlertTriangle, 
   Database, 
   CheckCircle2, 
-  BrainCircuit, 
   Download,
   Search,
   Server,
@@ -17,15 +17,15 @@ import {
 
 export default function Header({ activeTab, setActiveTab, onExportCSV, globalSearch, setGlobalSearch }) {
   const tabs = [
-    { id: 'supervisor', label: '🛡️ Supervisor Executive Briefing', icon: ShieldCheck },
-    { id: '3d_view', label: '🔮 Interactive 3D Log Space', icon: Box },
+    { id: 'free_flow', label: '⚡ Free-Flow Animatic Causal Graph (Evaluation Main)', icon: Zap },
+    { id: 'supervisor', label: '🛡️ Supervisor Briefing', icon: ShieldCheck },
+    { id: '3d_view', label: '🔮 3D Log Space', icon: Box },
     { id: 'main_event', label: '🎯 Main Event Mapper (PS)', icon: Target },
     { id: 'topology', label: '🛰️ 3-Node Topology', icon: Server },
     { id: 'overview', label: '📊 Analytics Overview', icon: BarChart3 },
     { id: 'correlation', label: '🔄 Event Correlation', icon: GitCompare },
     { id: 'faults', label: '⚠️ Fault Repository', icon: AlertTriangle },
-    { id: 'explorer', label: '📋 Log Explorer (5,257)', icon: Database },
-    { id: 'validation', label: '🛡️ Quality Audit', icon: CheckCircle2 }
+    { id: 'explorer', label: '📋 Log Explorer (5,257)', icon: Database }
   ];
 
   return (
@@ -37,8 +37,8 @@ export default function Header({ activeTab, setActiveTab, onExportCSV, globalSea
             <Activity className="w-6 h-6 text-cyan-400" />
           </div>
           <div className="brand-text">
-            <h1>Honeywell FMS Supervisory Center</h1>
-            <p>Multi-Node Log Analytics & 3D WebGL Event Mapper</p>
+            <h1>FlightStory AI - LangGraph Mission Control</h1>
+            <p>LangGraph Causal Event Flow & Touch-Interactive Visualizer</p>
           </div>
         </div>
 
@@ -54,10 +54,10 @@ export default function Header({ activeTab, setActiveTab, onExportCSV, globalSea
             <span className="pulse-dot"></span> NODE C: 1,881
           </div>
           <div className="badge badge-critical font-mono">
-            MAIN EVENT: FAULT 6025
+            LANGGRAPH FLOW ENRICHED
           </div>
           <div className="badge badge-success">
-            100% VALIDATED (5,257)
+            5,257 RECS MAPPED
           </div>
         </div>
 
