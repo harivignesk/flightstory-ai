@@ -27,7 +27,8 @@ const LovableTelemetryScene = lazy(() => import('./telemetry-scene'));
 
 export type View = 
   | 'overview' 
-  | 'timeline' 
+  | 'timeline'
+  | 'propagation' 
   | 'correlation' 
   | 'fault_explorer' 
   | 'operational_context' 
@@ -37,6 +38,7 @@ export type View =
 const navigation = [
   { view: 'overview', label: 'Flight Overview', icon: LayoutDashboard },
   { view: 'timeline', label: 'Incident Timeline', icon: Clock, badge: '3-LANES' },
+  { view: 'propagation', label: 'Incident Propagation Flow', icon: Target, badge: 'LANGGRAPH' },
   { view: 'correlation', label: 'Event Correlation', icon: GitMerge, badge: 'RATIONALE' },
   { view: 'fault_explorer', label: 'Fault & Event Explorer', icon: Layers, badge: 'LEVEL 2' },
   { view: 'operational_context', label: 'Operational Context', icon: Network, badge: 'LEVEL 3' },
@@ -49,6 +51,7 @@ const shortFamily = (family: string) => family.replace(' Log', '').replace(' Buf
 const titles: Record<View, string> = {
   overview: 'Flight Overview & Multi-System Metrics',
   timeline: '3-Node Synchronized Incident Timeline (NODE_A, NODE_B, NODE_C)',
+  propagation: 'Incident Propagation Flow (LangGraph Causal Chain)',
   correlation: 'Event Correlation & Relationship Rationales',
   fault_explorer: 'Fault & Event Explorer (Level 2 Detail)',
   operational_context: 'Operational Context & System State (Level 3)',
@@ -57,8 +60,9 @@ const titles: Record<View, string> = {
 };
 
 const subtitles: Record<View, string> = {
-  overview: 'System-wide record totals by node and log family, critical fault counts, and compact timeline.',
+  overview: 'System-wide record totals by node and log family, 3D WebGL event landscape, and compact timeline.',
   timeline: 'Three horizontal lanes for NODE_A, NODE_B, and NODE_C with 5 log family markers, zoom, and time navigation.',
+  propagation: 'Maps timestamped sub-events across nodes into the main root cause incident using LangGraph directional flow arrows.',
   correlation: 'Cross-node associations with rationales: Temporal, Contextual, Possible Duplicate, No Match Found.',
   fault_explorer: 'Detailed fault inspection: event code, duration, impact, recovery, and correlation breakdown.',
   operational_context: 'FMS state transitions, operator interactions, software events, and cross-node activity.',
@@ -514,6 +518,46 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 </div>
               </div>
 
+              {/* 3D TELEMETRY EVENT LANDSCAPE MODEL */}
+              <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                  <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Box size={18} style={{ color: 'var(--info)' }} />
+                    3D Telemetry Event Landscape Model
+                  </h3>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button size="icon" variant="ghost" title="Reset camera" onClick={() => setResetKey(k => k + 1)}>
+                      <RotateCcw size={15} />
+                    </Button>
+                    <Button size="icon" variant="ghost" title={expanded ? 'Close expanded view' : 'Expand visualization'} onClick={() => setExpanded(!expanded)}>
+                      {expanded ? <X size={15} /> : <Expand size={15} />}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="scene-viewport" style={{ height: '300px', borderRadius: '6px', overflow: 'hidden', position: 'relative' }}>
+                  <div className="scene-legend">
+                    <span><i className="legend-dot info" />Info</span>
+                    <span><i className="legend-dot warning" />Warning</span>
+                    <span><i className="legend-dot critical" />Critical</span>
+                  </div>
+                  {hydrated && (
+                    <Suspense fallback={<div className="scene-loading">Loading 3D event landscape…</div>}>
+                      <LovableTelemetryScene 
+                        node={globalNode} 
+                        severity={globalSeverity} 
+                        progress={progress} 
+                        running={running} 
+                        resetKey={resetKey} 
+                        onSelect={setSelectedRecord} 
+                        propagation={false} 
+                      />
+                    </Suspense>
+                  )}
+                  <div className="scene-caption">TIME × SEVERITY × NODE</div>
+                </div>
+              </div>
+
               {/* FEATURE 6: INVESTIGATION PRIORITY SCORING TABLE */}
               <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
@@ -661,7 +705,14 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             />
           )}
 
-          {/* 3. EVENT CORRELATION WITH RATIONALES */}
+          {/* 3. INCIDENT PROPAGATION FLOW (LANGGRAPH CAUSAL CHAIN) */}
+          {currentView === 'propagation' && (
+            <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1.25rem' }}>
+              <MainEventMapper rootCauseData={dataset.root_cause_analysis} records={filteredRecords} />
+            </div>
+          )}
+
+          {/* 4. EVENT CORRELATION WITH RATIONALES */}
           {currentView === 'correlation' && (
             <CorrelationTab 
               records={filteredRecords} 
@@ -669,7 +720,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             />
           )}
 
-          {/* 4. FAULT & EVENT EXPLORER (LEVEL 2) */}
+          {/* 5. FAULT & EVENT EXPLORER (LEVEL 2) */}
           {currentView === 'fault_explorer' && (
             <ConnectedLevelsView 
               initialLevel={2}
@@ -678,7 +729,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             />
           )}
 
-          {/* 5. OPERATIONAL CONTEXT (LEVEL 3) */}
+          {/* 6. OPERATIONAL CONTEXT (LEVEL 3) */}
           {currentView === 'operational_context' && (
             <ConnectedLevelsView 
               initialLevel={3}
@@ -687,12 +738,12 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             />
           )}
 
-          {/* 6. AI INCIDENT ANALYST */}
+          {/* 7. AI INCIDENT ANALYST */}
           {currentView === 'ai_narrative' && (
             <NaturalLanguageQA records={filteredRecords} rootCauseData={dataset.root_cause_analysis} />
           )}
 
-          {/* 7. EVIDENCE & DATA QUALITY (LEVEL 4) */}
+          {/* 8. EVIDENCE & DATA QUALITY (LEVEL 4) */}
           {currentView === 'evidence_quality' && (
             <ConnectedLevelsView 
               initialLevel={4}
