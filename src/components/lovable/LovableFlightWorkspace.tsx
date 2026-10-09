@@ -463,7 +463,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
               {/* FEATURE 1: ONE-CLICK INVESTIGATION BUTTON ⭐ */}
               <Button 
                 style={{ background: 'linear-gradient(135deg, #0284c7, #0ea5e9)', color: '#fff', fontWeight: '700', gap: '0.45rem', padding: '0.6rem 1.25rem', fontSize: '0.85rem', boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' }}
-                onClick={() => setShowInvestigationResults(true)}
+                onClick={runOneClickInvestigation}
               >
                 <Zap size={16} /> Investigate System ⭐
               </Button>
@@ -518,12 +518,12 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 </div>
               </div>
 
-              {/* 3D TELEMETRY EVENT LANDSCAPE MODEL */}
+              {/* 3D TELEMETRY EVENT LANDSCAPE MODEL WITH VIDEO PLAYBACK CONTROLS */}
               <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                   <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Box size={18} style={{ color: 'var(--info)' }} />
-                    3D Telemetry Event Landscape Model
+                    3D Telemetry Event Landscape Model (Interactive Video Viewport)
                   </h3>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <Button size="icon" variant="ghost" title="Reset camera" onClick={() => setResetKey(k => k + 1)}>
@@ -535,7 +535,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                   </div>
                 </div>
 
-                <div className="scene-viewport" style={{ height: '300px', borderRadius: '6px', overflow: 'hidden', position: 'relative' }}>
+                <div className="scene-viewport" style={{ height: '300px', borderRadius: '6px 6px 0 0', overflow: 'hidden', position: 'relative' }}>
                   <div className="scene-legend">
                     <span><i className="legend-dot info" />Info</span>
                     <span><i className="legend-dot warning" />Warning</span>
@@ -555,6 +555,61 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     </Suspense>
                   )}
                   <div className="scene-caption">TIME × SEVERITY × NODE</div>
+                </div>
+
+                {/* Video Playback Controls Bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'var(--secondary)', border: '1px solid var(--border)', borderTop: 'none', padding: '0.75rem 1rem', borderRadius: '0 0 6px 6px', flexWrap: 'wrap' }}>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setRunning(!running)} 
+                    style={{ gap: '0.35rem', background: running ? 'rgba(239, 68, 68, 0.15)' : 'rgba(56, 189, 248, 0.15)', color: running ? '#f87171' : '#38bdf8', borderColor: running ? '#f87171' : '#38bdf8', fontWeight: '700' }}
+                  >
+                    {running ? <Pause size={14} /> : <Play size={14} />}
+                    {running ? 'Pause Video Playback' : 'Play Video Timeline'}
+                  </Button>
+
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => setProgress(0)} 
+                    title="Replay from start"
+                    style={{ gap: '0.25rem', color: 'var(--muted-foreground)' }}
+                  >
+                    <RotateCcw size={13} /> Replay
+                  </Button>
+
+                  {/* Time Progress Scrubber Slider */}
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: '180px' }}>
+                    <span style={{ fontSize: '0.72rem', fontFamily: 'JetBrains Mono', color: 'var(--muted-foreground)' }}>09:00:00</span>
+                    <input 
+                      type="range" 
+                      min={0} 
+                      max={100} 
+                      value={progress} 
+                      onChange={e => setProgress(Number(e.target.value))}
+                      style={{ flex: 1, accentColor: '#38bdf8', cursor: 'pointer', height: '6px' }} 
+                    />
+                    <span style={{ fontSize: '0.72rem', fontFamily: 'JetBrains Mono', color: '#38bdf8', fontWeight: '700' }}>
+                      14:00:09
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontFamily: 'JetBrains Mono' }}>
+                    <span className="tiny-badge info" style={{ fontWeight: '700' }}>
+                      {running ? '● PLAYING (1x SPEED)' : 'PAUSED'}
+                    </span>
+                    <span style={{ color: 'var(--muted-foreground)' }}>{progress}% Time Window</span>
+                  </div>
+
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => { setProgress(25); setRunning(false); }} 
+                    style={{ fontSize: '0.72rem', padding: '0.35rem 0.6rem', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.4)' }}
+                  >
+                    <Zap size={12} /> Jump to Fault 6025
+                  </Button>
                 </div>
               </div>
 

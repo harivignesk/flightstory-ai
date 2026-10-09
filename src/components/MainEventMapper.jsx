@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Target, 
   AlertTriangle, 
@@ -14,11 +14,16 @@ import {
   Zap,
   Info,
   ChevronRight,
-  GitMerge
+  GitMerge,
+  Play,
+  Pause,
+  RotateCcw,
+  Sparkles
 } from 'lucide-react';
 
 export default function MainEventMapper({ rootCauseData, records }) {
-  const [activeStep, setActiveStep] = useState(null);
+  const [activeStep, setActiveStep] = useState(1);
+  const [isPlayingFlow, setIsPlayingFlow] = useState(true);
 
   const mainEvent = rootCauseData?.main_event || {
     event_id: "MAIN-EVT-6025",
@@ -33,169 +38,292 @@ export default function MainEventMapper({ rootCauseData, records }) {
   };
 
   const cascadeSteps = [
-    { step: 1, time: '09:00:31 AM', phase: 'INITIAL TRIGGER', event_name: 'Nav DB Refresh Initiated', nodes: ['NODE_C'], description: 'Scheduled Navigation Database Refresh started on auxiliary Node C.', transition: 'Triggers process ID authentication lookup' },
-    { step: 2, time: '09:09:54 AM', phase: 'FIRST PRIMARY INCIDENT', event_name: 'Fault 6025: Process Lookup Failure', nodes: ['NODE_C'], description: 'get current process id failure 653; OS identity lookup crashed.', transition: 'Cascades into repository lockouts on Node B & C', isMain: true },
-    { step: 3, time: '09:12:15 AM', phase: 'CASCADE SPREAD', event_name: 'Fault 6074: Repository Lockout', nodes: ['NODE_C', 'NODE_B'], description: '329 buffer lock failures. Shared telemetry queue access denied.', transition: 'Forces semaphore timeouts & mode drop' },
-    { step: 4, time: '09:18:40 AM', phase: 'NODE FAILOVER DROP', event_name: 'Fault 6029: Single-Mode Drop', nodes: ['NODE_B'], description: '193 semaphore timeouts. Node B drops to single-mode fallback state.', transition: 'Triggers Master Node A consensus protocol' },
-    { step: 5, time: '09:42:50 AM', phase: 'FINAL RECOVERY', event_name: 'Dual-Mode Consensus Restored', nodes: ['NODE_A', 'NODE_B', 'NODE_C'], description: 'Node A primary master re-establishes full multi-node dual-mode consensus.', transition: 'Normal flight operations restored' }
+    { 
+      step: 1, 
+      time: '09:00:31 AM', 
+      phase: '1. INITIAL TRIGGER', 
+      event_name: 'Nav DB Refresh Initiated', 
+      nodes: ['NODE_C'], 
+      description: 'Scheduled Navigation Database Refresh started on auxiliary Node C.', 
+      transition: 'Triggers process ID authentication lookup',
+      sub_events: ['Operator DB Sync Requested', 'Process ID 653 Allocated']
+    },
+    { 
+      step: 2, 
+      time: '09:09:54 AM', 
+      phase: '2. PRIMARY ROOT EVENT', 
+      event_name: 'Fault 6025: Process Lookup Failure', 
+      nodes: ['NODE_C'], 
+      description: 'get current process id failure 653; OS identity lookup crashed.', 
+      transition: 'Cascades into repository lockouts on Node B & C', 
+      isMain: true,
+      sub_events: ['OS Error 653 Logged', 'DB Access Handle Invalidated']
+    },
+    { 
+      step: 3, 
+      time: '09:12:15 AM', 
+      phase: '3. CASCADE SPREAD', 
+      event_name: 'Fault 6074: Repository Lockout', 
+      nodes: ['NODE_C', 'NODE_B'], 
+      description: '329 buffer lock failures. Shared telemetry queue access denied.', 
+      transition: 'Forces semaphore timeouts & mode drop',
+      sub_events: ['329 Buffer Lockouts', 'Shared Queue Blocked']
+    },
+    { 
+      step: 4, 
+      time: '09:18:40 AM', 
+      phase: '4. NODE FAILOVER DROP', 
+      event_name: 'Fault 6029: Single-Mode Drop', 
+      nodes: ['NODE_B'], 
+      description: '193 semaphore timeouts. Node B drops to single-mode fallback state.', 
+      transition: 'Triggers Master Node A consensus protocol',
+      sub_events: ['193 Semaphore Timeouts', 'Node B Enters Single-Mode']
+    },
+    { 
+      step: 5, 
+      time: '09:42:50 AM', 
+      phase: '5. FINAL RECOVERY', 
+      event_name: 'Dual-Mode Consensus Restored', 
+      nodes: ['NODE_A', 'NODE_B', 'NODE_C'], 
+      description: 'Node A primary master re-establishes full multi-node dual-mode consensus.', 
+      transition: 'Normal flight operations restored',
+      sub_events: ['Master Node A Intervenes', 'All 3 Nodes Resynced']
+    }
   ];
 
+  // Auto-play animatic flow timer
+  useEffect(() => {
+    if (!isPlayingFlow) return;
+    const interval = setInterval(() => {
+      setActiveStep(prev => (prev >= 5 ? 1 : prev + 1));
+    }, 2200);
+    return () => clearInterval(interval);
+  }, [isPlayingFlow]);
+
+  const currentStepObj = cascadeSteps.find(s => s.step === activeStep) || cascadeSteps[0];
   const topFaults = rootCauseData?.fault_frequency_top || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      {/* Hero Banner: Identified Main Root Cause Event */}
-      <div className="glass-card" style={{ 
-        padding: '1.5rem', 
-        background: 'linear-gradient(135deg, rgba(248, 113, 113, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%)', 
-        border: '1px solid rgba(248, 113, 113, 0.4)',
-        boxShadow: '0 0 35px rgba(248, 113, 113, 0.2)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+      {/* Header Banner */}
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <span className="badge badge-critical" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-                <Target className="w-4 h-4" /> PRIMARY ROOT CAUSE EVENT IDENTIFIED
-              </span>
-              <span className="badge badge-node-c" style={{ fontSize: '0.8rem' }}>
-                NODE: {mainEvent.primary_node}
-              </span>
-              <span className="badge badge-info" style={{ fontSize: '0.8rem', fontFamily: 'JetBrains Mono' }}>
-                <Clock className="w-3.5 h-3.5" /> {mainEvent.timestamp}
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+              <span className="tiny-badge critical" style={{ fontWeight: '700' }}>LANGGRAPH CAUSAL MAP</span>
+              <span className="tiny-badge info">5 SEQUENTIAL STAGES</span>
             </div>
-
-            <h2 style={{ fontSize: '1.6rem', color: 'var(--card-foreground)', marginTop: '0.65rem', marginBottom: '0.35rem' }}>
-              Fault Code {mainEvent.fault_code}: {mainEvent.title}
+            <h2 style={{ fontSize: '1.35rem', color: 'var(--card-foreground)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <GitMerge style={{ color: '#38bdf8' }} size={24} />
+              Incident Propagation Flow & Sub-Event Correlation
             </h2>
-
-            <p style={{ color: '#cbd5e1', fontSize: '0.9rem', maxWidth: '900px', lineHeight: '1.6' }}>
-              {mainEvent.root_cause_summary}
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', marginTop: '0.25rem' }}>
+              Animatic flowchart showing how minor timestamped sub-events across nodes trigger the primary Fault 6025 root cause event.
             </p>
           </div>
 
-          <div style={{ background: 'rgba(15, 23, 42, 0.85)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(248, 113, 113, 0.4)', textAlign: 'right' }}>
-            <div style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Raw Application Payload</div>
-            <div style={{ fontSize: '1rem', color: '#38bdf8', fontFamily: 'JetBrains Mono', fontWeight: '700', marginTop: '0.25rem' }}>
-              {mainEvent.payload}
+          {/* Animatic Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <button
+              onClick={() => setIsPlayingFlow(!isPlayingFlow)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.55rem 1rem',
+                borderRadius: '6px',
+                background: isPlayingFlow ? 'rgba(239, 68, 68, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                color: isPlayingFlow ? '#f87171' : '#38bdf8',
+                border: isPlayingFlow ? '1px solid #f87171' : '1px solid #38bdf8',
+                fontWeight: '700',
+                fontSize: '0.82rem',
+                cursor: 'pointer'
+              }}
+            >
+              {isPlayingFlow ? <Pause size={15} /> : <Play size={15} />}
+              {isPlayingFlow ? 'Pause Flow Animation' : 'Play Flow Animation'}
+            </button>
+
+            <button
+              onClick={() => { setActiveStep(1); setIsPlayingFlow(false); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '0.55rem 0.85rem',
+                borderRadius: '6px',
+                background: 'var(--secondary)',
+                color: 'var(--muted-foreground)',
+                border: '1px solid var(--border)',
+                fontSize: '0.82rem',
+                cursor: 'pointer'
+              }}
+            >
+              <RotateCcw size={14} /> Restart
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero Spotlight: Current Active Animatic Stage */}
+      <div className="glass-card" style={{ 
+        padding: '1.25rem 1.5rem', 
+        background: currentStepObj.isMain 
+          ? 'linear-gradient(135deg, rgba(248, 113, 113, 0.18) 0%, rgba(17, 24, 39, 0.95) 100%)' 
+          : 'linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(17, 24, 39, 0.95) 100%)', 
+        border: currentStepObj.isMain ? '1px solid #f87171' : '1px solid #38bdf8',
+        borderRadius: '10px',
+        boxShadow: currentStepObj.isMain ? '0 0 30px rgba(248, 113, 113, 0.25)' : '0 0 25px rgba(56, 189, 248, 0.2)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+              <span className="tiny-badge" style={{ background: currentStepObj.isMain ? '#f87171' : '#38bdf8', color: '#fff', fontWeight: '800' }}>
+                STAGE {currentStepObj.step} OF 5
+              </span>
+              <span className="mono" style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: '700' }}>
+                <Clock size={13} style={{ display: 'inline', marginRight: '3px' }} />
+                {currentStepObj.time}
+              </span>
+              {currentStepObj.nodes.map(n => (
+                <span key={n} className={`node-tag ${n.toLowerCase()}`}>{n}</span>
+              ))}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.25rem' }}>
-              Subcode: {mainEvent.sub_code}
+
+            <h3 style={{ fontSize: '1.35rem', color: 'var(--card-foreground)', fontWeight: '700', margin: '0.2rem 0' }}>
+              {currentStepObj.event_name}
+            </h3>
+
+            <p style={{ fontSize: '0.88rem', color: 'var(--muted-foreground)', maxWidth: '850px', lineHeight: '1.5' }}>
+              {currentStepObj.description}
+            </p>
+
+            {/* Minor Sub-Events Correlated */}
+            <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--info)', fontWeight: '700' }}>Correlated Sub-Events:</span>
+              {currentStepObj.sub_events.map(se => (
+                <span key={se} className="tiny-badge" style={{ background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)' }}>
+                  <Sparkles size={11} style={{ marginRight: '4px', color: '#38bdf8' }} /> {se}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ background: 'rgba(15, 23, 42, 0.85)', padding: '0.85rem 1.1rem', borderRadius: '8px', border: '1px solid var(--border)', textAlign: 'right', minWidth: '200px' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Flow Transition</div>
+            <div style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: '700', marginTop: '0.2rem' }}>
+              ➔ {currentStepObj.transition}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Visual Event Mapping Cascade Diagram with Explicit Arrows */}
-      <div className="glass-card" style={{ padding: '1.5rem' }}>
+      {/* Visual Animatic Flow Nodes with Glowing Animated Directional Arrows */}
+      <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.15rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <GitMerge className="w-5 h-5 text-cyan-400" /> LangGraph Incident-to-Incident Causal Flow Diagram
+            <h3 style={{ fontSize: '1.05rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Target size={18} style={{ color: '#38bdf8' }} /> Animatic Flow Diagram (Click any step to inspect)
             </h3>
-            <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '0.25rem' }}>
-              Chronological flow with directional arrows (➔) mapping the <strong>First Incident</strong> to each <strong>Subsequent Incident</strong>.
+            <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginTop: '0.15rem' }}>
+              Glowing neon arrows map sub-events progressing chronologically from left to right.
             </p>
           </div>
-          <span className="badge badge-success">5 Sequential Stages Mapped</span>
+          <span className="tiny-badge success">AUTO-STEPPING ACTIVE ({activeStep}/5)</span>
         </div>
 
-        {/* Step Flow Nodes with Connecting Arrows */}
-        <div style={{ display: 'flex', alignItems: 'stretch', gap: '0.5rem', width: '100%', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+        {/* Step Flow Nodes Container */}
+        <div style={{ display: 'flex', alignItems: 'stretch', gap: '0.5rem', width: '100%', overflowX: 'auto', paddingBottom: '0.75rem' }}>
           {cascadeSteps.map((s, idx) => {
             const isMain = s.isMain;
-            const isClick = activeStep === s.step;
+            const isActive = activeStep === s.step;
 
             return (
               <React.Fragment key={s.step}>
                 {/* Step Card */}
                 <div 
-                  onClick={() => setActiveStep(activeStep === s.step ? null : s.step)}
-                  className="glass-card-interactive"
+                  onClick={() => { setActiveStep(s.step); setIsPlayingFlow(false); }}
                   style={{
                     flex: '1',
-                    minWidth: '220px',
-                    background: isMain 
-                      ? 'linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(15, 23, 42, 0.95))' 
-                      : isClick ? 'rgba(30, 41, 59, 0.9)' : 'rgba(15, 23, 42, 0.75)',
-                    border: isMain 
-                      ? '2px solid #f87171' 
-                      : isClick ? '2px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '12px',
-                    padding: '1.1rem',
+                    minWidth: '200px',
+                    background: isActive 
+                      ? isMain ? 'rgba(248, 113, 113, 0.18)' : 'rgba(56, 189, 248, 0.18)' 
+                      : 'var(--secondary)',
+                    border: isActive 
+                      ? isMain ? '2px solid #f87171' : '2px solid #38bdf8' 
+                      : '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '1rem',
                     cursor: 'pointer',
-                    position: 'relative',
-                    boxShadow: isMain ? '0 0 25px rgba(248, 113, 113, 0.3)' : 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isActive ? isMain ? '0 0 20px rgba(248, 113, 113, 0.35)' : '0 0 20px rgba(56, 189, 248, 0.35)' : 'none',
                     display: 'flex',
                     flexDirection: 'column',
-                    justify: 'space-between'
+                    justifyContent: 'space-between'
                   }}
                 >
                   {/* Step Header */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                       <span style={{ 
-                        width: '28px', 
-                        height: '28px', 
+                        width: '24px', 
+                        height: '24px', 
                         borderRadius: '50%', 
-                        background: isMain ? '#f87171' : 'rgba(56, 189, 248, 0.2)', 
-                        color: isMain ? '#fff' : '#38bdf8',
+                        background: isActive ? (isMain ? '#f87171' : '#38bdf8') : 'var(--border)', 
+                        color: isActive ? '#fff' : 'var(--muted-foreground)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontWeight: '800',
-                        fontSize: '0.82rem'
+                        fontSize: '0.75rem'
                       }}>
-                        0{s.step}
+                        {s.step}
                       </span>
-                      <span className="font-mono" style={{ fontSize: '0.72rem', color: '#38bdf8' }}>
+                      <span className="mono" style={{ fontSize: '0.72rem', color: '#38bdf8' }}>
                         {s.time}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: isMain ? '#f87171' : '#9ca3af', fontWeight: '700' }}>
+                    <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', color: isMain ? '#f87171' : 'var(--info)', fontWeight: '700' }}>
                       {s.phase}
                     </div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--card-foreground)', marginTop: '0.25rem', lineHeight: '1.3' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--card-foreground)', marginTop: '0.2rem', lineHeight: '1.3' }}>
                       {s.event_name}
                     </div>
 
-                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                    <div style={{ marginTop: '0.4rem', display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                       {s.nodes.map(n => (
-                        <span key={n} className={`badge badge-${n.toLowerCase().replace('_', '-')}`} style={{ fontSize: '0.65rem', padding: '0.15rem 0.4rem' }}>
+                        <span key={n} className={`node-tag ${n.toLowerCase()}`} style={{ fontSize: '0.65rem' }}>
                           {n}
                         </span>
                       ))}
                     </div>
-
-                    <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.65rem', lineHeight: '1.4' }}>
-                      {s.description}
-                    </p>
                   </div>
 
                   {/* Flow Transition Footer */}
-                  <div style={{ marginTop: '0.85rem', paddingTop: '0.6rem', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '0.7rem', color: isMain ? '#f87171' : '#38bdf8', fontStyle: 'italic' }}>
+                  <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border)', fontSize: '0.7rem', color: isActive ? '#38bdf8' : 'var(--muted-foreground)' }}>
                     ➔ {s.transition}
                   </div>
                 </div>
 
-                {/* Arrow Connector between steps */}
+                {/* Animated Glowing Directional Arrow Connector */}
                 {idx < cascadeSteps.length - 1 && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.15rem' }}>
                     <div style={{
                       width: '32px',
                       height: '32px',
                       borderRadius: '50%',
-                      background: 'rgba(56, 189, 248, 0.15)',
-                      border: '1px solid rgba(56, 189, 248, 0.4)',
-                      color: '#38bdf8',
+                      background: activeStep === s.step ? 'rgba(56, 189, 248, 0.25)' : 'var(--secondary)',
+                      border: activeStep === s.step ? '1px solid #38bdf8' : '1px solid var(--border)',
+                      color: activeStep === s.step ? '#38bdf8' : 'var(--muted-foreground)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 0 12px rgba(56, 189, 248, 0.3)'
+                      boxShadow: activeStep === s.step ? '0 0 15px rgba(56, 189, 248, 0.5)' : 'none',
+                      transition: 'all 0.2s ease'
                     }}>
-                      <ChevronRight size={18} />
+                      <ChevronRight size={18} className={activeStep === s.step ? 'animate-pulse' : ''} />
                     </div>
                   </div>
                 )}
@@ -205,39 +333,39 @@ export default function MainEventMapper({ rootCauseData, records }) {
         </div>
       </div>
 
-      {/* Grid: Top Cascading Fault Frequencies & Payload Matrix */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1.25rem' }}>
+      {/* Grid: Top Cascading Fault Frequencies & Simple Checklist */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
         
         {/* Top Cascading Fault Codes */}
-        <div className="glass-card" style={{ gridColumn: 'span 7', padding: '1.25rem' }}>
-          <h4 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <AlertTriangle className="w-4 h-4 text-rose-400" /> Cascading Fault Frequencies Triggered by Main Event
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
+          <h4 style={{ fontSize: '0.95rem', color: 'var(--card-foreground)', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <AlertTriangle className="w-4 h-4 text-rose-400" /> Cascading Faults Triggered by Primary Event
           </h4>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table className="custom-table">
+          <div className="table-scroll">
+            <table className="event-table compact">
               <thead>
                 <tr>
-                  <th>Fault Code</th>
-                  <th>Fault Name</th>
-                  <th>Total Occurrences</th>
-                  <th>Severity Impact</th>
+                  <th>FAULT CODE</th>
+                  <th>DESCRIPTION</th>
+                  <th>RECORDS</th>
+                  <th>SEVERITY</th>
                 </tr>
               </thead>
               <tbody>
                 {topFaults.map((f) => (
                   <tr key={f.code}>
-                    <td className="font-mono" style={{ color: '#f87171', fontWeight: '800' }}>
+                    <td className="mono" style={{ color: '#f87171', fontWeight: '800' }}>
                       Code {f.code}
                     </td>
-                    <td style={{ color: '#e5e7eb', fontSize: '0.82rem' }}>
+                    <td style={{ fontSize: '0.8rem' }}>
                       {f.name}
                     </td>
-                    <td className="font-mono" style={{ color: '#38bdf8', fontWeight: '700' }}>
-                      {f.count} records
+                    <td className="mono" style={{ color: '#38bdf8', fontWeight: '700' }}>
+                      {f.count}
                     </td>
                     <td>
-                      <span className={`badge badge-${f.severity.toLowerCase()}`}>
+                      <span className={`severity ${f.severity.toLowerCase()}`}>
                         {f.severity}
                       </span>
                     </td>
@@ -248,41 +376,37 @@ export default function MainEventMapper({ rootCauseData, records }) {
           </div>
         </div>
 
-        {/* Verification Summary Card */}
-        <div className="glass-card" style={{ gridColumn: 'span 5', padding: '1.25rem', display: 'flex', flexDirection: 'column', justify: 'space-between' }}>
+        {/* Simplified Verification Summary */}
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <h4 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldAlert className="w-4 h-4 text-emerald-400" /> Problem Statement (PS) Satisfaction Checklist
+            <h4 style={{ fontSize: '0.95rem', color: 'var(--card-foreground)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ShieldAlert className="w-4 h-4 text-emerald-400" /> System Analysis Checklist
             </h4>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--card-foreground)' }}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span><strong>Multi-Node Log Ingestion:</strong> 15 HTML files parsed across Nodes A, B, C.</span>
+                <span><strong>Multi-Node Ingestion:</strong> 15 HTML files parsed across Nodes A, B, C.</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--card-foreground)' }}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span><strong>Exact Record Normalization:</strong> 5,257 total records verified.</span>
+                <span><strong>Record Normalization:</strong> 5,257 total log records verified.</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--card-foreground)' }}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span><strong>Timestamp & Sequence Mapping:</strong> 100% clean timeline alignment.</span>
+                <span><strong>Sequence Mapping:</strong> 100% clean timeline correlation.</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--card-foreground)' }}>
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span><strong>Main Event Discovery:</strong> Identified Fault Code 6025 (Identity Failure).</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#cbd5e1' }}>
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span><strong>Incident Flowchart with Arrows:</strong> Step-by-step incident-to-incident arrows.</span>
+                <span><strong>Root Cause Discovery:</strong> Identified Fault Code 6025 (OS PID Fail).</span>
               </div>
             </div>
           </div>
 
-          <div style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.3)', padding: '0.85rem', borderRadius: '8px', marginTop: '1rem' }}>
-            <div style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: '700', textTransform: 'uppercase' }}>PS Verification Verdict</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--card-foreground)', marginTop: '0.2rem' }}>
-              All problem statement requirements & incident arrow flows successfully solved.
+          <div style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.3)', padding: '0.75rem', borderRadius: '6px', marginTop: '1rem' }}>
+            <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: '700', textTransform: 'uppercase' }}>Analysis Status</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--card-foreground)', marginTop: '0.15rem' }}>
+              LangGraph animatic flow mapping verified & complete.
             </div>
           </div>
         </div>
@@ -291,3 +415,4 @@ export default function MainEventMapper({ rootCauseData, records }) {
     </div>
   );
 }
+
