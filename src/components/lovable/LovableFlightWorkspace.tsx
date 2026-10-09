@@ -3,11 +3,12 @@ import {
   Activity, ArrowDownToLine, ArrowRight, Bell, Box, Check, ChevronDown, 
   ChevronLeft, ChevronRight, CircleHelp, Database, Expand, FileText, 
   GitBranch, LayoutDashboard, Network, Pause, Plane, Play, RotateCcw, 
-  Search, Settings2, ShieldCheck, Target, Zap, Server, X 
+  Search, Settings2, ShieldCheck, Target, Zap, Server, X, Radio, FastForward
 } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { dataset, records, summary, timeline, nodes, nodeLabels, filterRecords, exportRecords, type FlightRecord } from '../../data/flight-data';
+import telemetryStreamer from '../../data/telemetry-streamer';
 
 import InteractiveFreeFlowGraph from '../InteractiveFreeFlowGraph';
 import SupervisorBriefing from '../SupervisorBriefing';
@@ -151,12 +152,35 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
   const [notice, setNotice] = useState(false);
   const [help, setHelp] = useState(false);
 
+  // Real-Time Live Streaming State
+  const [isLiveStreaming, setIsLiveStreaming] = useState(false);
+  const [streamStats, setStreamStats] = useState(telemetryStreamer.stats);
+  const [liveToastAlert, setLiveToastAlert] = useState<FlightRecord | null>(null);
+
   useEffect(() => setHydrated(true), []);
   useEffect(() => {
     if (!running || progress === 100) return;
     const id = window.setInterval(() => setProgress(p => Math.min(100, p + 1)), 120);
     return () => window.clearInterval(id);
   }, [running, progress]);
+
+  // Subscribe to Live Telemetry Streamer
+  useEffect(() => {
+    const unsubscribe = telemetryStreamer.subscribe((event: any) => {
+      if (event.type === 'TELEMETRY_PACKET') {
+        setStreamStats(event.stats);
+        if (event.record.severity === 'CRITICAL' || event.record.fault_code === 6025) {
+          setLiveToastAlert(event.record);
+          setTimeout(() => setLiveToastAlert(null), 4500);
+        }
+      } else if (event.type === 'STREAM_STARTED') {
+        setIsLiveStreaming(true);
+      } else if (event.type === 'STREAM_PAUSED') {
+        setIsLiveStreaming(false);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const filtered = useMemo(() => filterRecords(query, node, severity), [query, node, severity]);
   const recent = useMemo(() => [...filtered].filter(r => r.fault_code === 6025 || r.severity === 'CRITICAL').sort((a,b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 5), [filtered]);
@@ -214,8 +238,8 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
 
         <div className="sidebar-bottom">
           <div className="dataset-state">
-            <span className="status-dot success" />
-            <span>Dataset connected<small>15 files · 5,257 records</small></span>
+            <span className={`status-dot ${isLiveStreaming ? 'critical' : 'success'}`} />
+            <span>{isLiveStreaming ? 'Live Stream Active' : 'Dataset connected'}<small>{isLiveStreaming ? `${streamStats.totalStreamed} pkts streamed` : '15 files · 5,257 records'}</small></span>
             <ShieldCheck size={16} />
           </div>
           <Button variant="ghost" className="nav-item" onClick={() => setHelp(true)}>
@@ -236,9 +260,12 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             Workspace <ChevronRight size={13} /> <span>{titles[currentView]}</span>
           </div>
           <div className="topbar-actions">
-            <span className="environment">
-              <span className="status-dot success" /> LOVABLE LIVE ENVIRONMENT
+            {/* Live Streaming Badge */}
+            <span className="environment" style={{ color: isLiveStreaming ? 'var(--critical)' : 'var(--success)' }}>
+              <span className={`status-dot ${isLiveStreaming ? 'critical' : 'success'}`} />
+              {isLiveStreaming ? `🔴 LIVE TELEMETRY (${streamStats.ratePerSec} pkts/s)` : 'OFFLINE SNAPSHOT'}
             </span>
+
             <Button variant="ghost" size="icon" aria-label="Notifications" onClick={() => setNotice(!notice)}>
               <Bell size={18} />
             </Button>
@@ -253,6 +280,39 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
           )}
         </header>
 
+        {/* Real-Time Live Streaming Floating Alert Toast */}
+        {liveToastAlert && (
+          <div style={{
+            position: 'fixed',
+            top: '80px',
+            right: '30px',
+            zIndex: 1000,
+            background: 'rgba(248, 113, 113, 0.95)',
+            color: '#fff',
+            padding: '1rem 1.25rem',
+            borderRadius: '8px',
+            boxShadow: '0 10px 30px rgba(248, 113, 113, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.85rem',
+            maxWidth: '460px',
+            animation: 'fadeIn 0.2s ease-out'
+          }}>
+            <Radio className="w-6 h-6 animate-pulse" />
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase' }}>
+                LIVE FAULT INGESTION: {liveToastAlert.node} ({liveToastAlert.timestamp_display || liveToastAlert.timestamp})
+              </div>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', marginTop: '0.2rem' }}>
+                {liveToastAlert.fault_name || `Fault Code ${liveToastAlert.fault_code}`}
+              </div>
+              <div style={{ fontSize: '0.75rem', opacity: 0.9, marginTop: '0.15rem' }}>
+                {liveToastAlert.message}
+              </div>
+            </div>
+          </div>
+        )}
+
         <main className="main-content">
           <div className="page-heading">
             <div>
@@ -261,9 +321,27 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
               <p>{subtitles[currentView]}</p>
             </div>
             <div className="heading-actions">
-              <span className="date-chip">
-                <FileText size={14} />18 Jun 2032 <span className="mono">09:00–14:00</span>
-              </span>
+              {/* Live Streaming Control Buttons */}
+              <Button 
+                variant={isLiveStreaming ? "destructive" : "default"} 
+                size="sm"
+                onClick={() => isLiveStreaming ? telemetryStreamer.stop() : telemetryStreamer.start(2)}
+                style={{ gap: '0.4rem', fontWeight: 600 }}
+              >
+                {isLiveStreaming ? <Pause size={14} /> : <Radio size={14} />}
+                {isLiveStreaming ? 'Pause Real-Time Stream' : 'Start Real-Time Stream'}
+              </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => { telemetryStreamer.seekToFault(); telemetryStreamer.start(5); }}
+                style={{ gap: '0.4rem' }}
+                title="Jump directly to Fault 6025 incident window"
+              >
+                <FastForward size={14} /> Jump to Fault 6025
+              </Button>
+
               <Button variant="outline" onClick={() => exportRecords(filtered)}>
                 <ArrowDownToLine size={14} />Export data
               </Button>
@@ -271,7 +349,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
           </div>
 
           <div className="dataset-ribbon">
-            <span><span className="status-dot success" />honeywell_fms_dataset.json</span>
+            <span><span className={`status-dot ${isLiveStreaming ? 'critical' : 'success'}`} />{isLiveStreaming ? `Live SSE Stream Active (${streamStats.totalStreamed} received)` : 'honeywell_fms_dataset.json'}</span>
             <span>15 decoded HTML files<span className="ribbon-divider" />3 redundant nodes<span className="ribbon-divider" /><ShieldCheck size={13} /> Imported & LangGraph verified</span>
           </div>
 
@@ -280,7 +358,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <>
               <div className="metrics-grid">
                 {[
-                  { label: 'TOTAL RECORDS', value: '5,257', icon: Database, sub: 'Across all three FMS nodes', foot: '15 source files', type: 'neutral' },
+                  { label: 'TOTAL RECORDS', value: isLiveStreaming ? streamStats.totalStreamed.toLocaleString() : '5,257', icon: Database, sub: isLiveStreaming ? 'Live SSE Streamed' : 'Across all three FMS nodes', foot: '15 source files', type: 'neutral' },
                   { label: 'CRITICAL EVENTS', value: summary.critical.toLocaleString(), icon: Activity, sub: '11.7% of normalized records', foot: 'Requires investigation', type: 'critical' },
                   { label: 'CONNECTED NODES', value: '3 / 3', icon: Network, sub: 'Primary · standby · auxiliary', foot: 'All nodes represented', type: 'success' },
                   { label: 'DATA VALIDATION', value: '100%', icon: ShieldCheck, sub: 'All 15 files marked PASS', foot: 'Source quality report', type: 'teal' }
