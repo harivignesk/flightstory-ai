@@ -3,7 +3,7 @@ import {
   Activity, ArrowDownToLine, ArrowRight, Bell, Box, Check, ChevronDown, 
   ChevronLeft, ChevronRight, CircleHelp, Database, Expand, FileText, 
   GitBranch, LayoutDashboard, Network, Pause, Plane, Play, RotateCcw, 
-  Search, Settings, Settings2, ShieldCheck, Target, Zap, Server, X, Radio, FastForward, 
+  Search, Settings, Settings2, ShieldAlert, ShieldCheck, Target, Zap, Server, X, Radio, FastForward, 
   Sparkles, Clock, Layers, GitMerge, Filter, RefreshCw
 } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
