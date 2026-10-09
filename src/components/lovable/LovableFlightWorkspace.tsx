@@ -176,6 +176,17 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
 
+  const [aerospaceTheme, setAerospaceTheme] = useState<'avionics' | 'radar' | 'space'>('avionics');
+  const [sceneAdjustments, setSceneAdjustments] = useState({
+    pointSize: 0.065,
+    heightScale: 1.0,
+    autoRotate: false,
+    autoRotateSpeed: 1.0,
+    colorMode: 'severity' as 'severity' | 'node' | 'category',
+    showGrid: true,
+    viewPreset: 'iso' as 'iso' | 'top' | 'focus_c' | 'side'
+  });
+
   const [selectedRecord, setSelectedRecord] = useState<FlightRecord | null>(null);
   const [running, setRunning] = useState(true);
   const [progress, setProgress] = useState(100);
@@ -536,24 +547,39 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 </div>
               </div>
 
-              {/* 3D TELEMETRY EVENT LANDSCAPE MODEL WITH VIDEO PLAYBACK CONTROLS */}
+              {/* 3D TELEMETRY EVENT LANDSCAPE MODEL WITH VIDEO PLAYBACK & ADJUSTABLE 3D CONTROLS */}
               <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                   <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Box size={18} style={{ color: 'var(--info)' }} />
-                    3D Telemetry Event Landscape Model (Interactive Video Viewport)
+                    3D Telemetry Event Landscape Model (Interactive Viewport)
                   </h3>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <Button size="icon" variant="ghost" title="Reset camera" onClick={() => setResetKey(k => k + 1)}>
-                      <RotateCcw size={15} />
-                    </Button>
-                    <Button size="icon" variant="ghost" title={expanded ? 'Close expanded view' : 'Expand visualization'} onClick={() => setExpanded(!expanded)}>
-                      {expanded ? <X size={15} /> : <Expand size={15} />}
-                    </Button>
+                  
+                  {/* Aerospace Theme Quick Selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: '700' }}>Aerospace Theme:</span>
+                    <button 
+                      onClick={() => setAerospaceTheme('avionics')}
+                      style={{ padding: '0.25rem 0.65rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: '700', background: aerospaceTheme === 'avionics' ? '#0ea5e9' : 'var(--secondary)', color: aerospaceTheme === 'avionics' ? '#fff' : 'var(--muted-foreground)', border: '1px solid var(--border)', cursor: 'pointer' }}
+                    >
+                      ✈️ Avionics Cockpit
+                    </button>
+                    <button 
+                      onClick={() => setAerospaceTheme('radar')}
+                      style={{ padding: '0.25rem 0.65rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: '700', background: aerospaceTheme === 'radar' ? '#10b981' : 'var(--secondary)', color: aerospaceTheme === 'radar' ? '#fff' : 'var(--muted-foreground)', border: '1px solid var(--border)', cursor: 'pointer' }}
+                    >
+                      📡 Tactical Radar
+                    </button>
+                    <button 
+                      onClick={() => setAerospaceTheme('space')}
+                      style={{ padding: '0.25rem 0.65rem', borderRadius: '4px', fontSize: '0.72rem', fontWeight: '700', background: aerospaceTheme === 'space' ? '#8b5cf6' : 'var(--secondary)', color: aerospaceTheme === 'space' ? '#fff' : 'var(--muted-foreground)', border: '1px solid var(--border)', cursor: 'pointer' }}
+                    >
+                      🌌 Deep Space
+                    </button>
                   </div>
                 </div>
 
-                <div className="scene-viewport" style={{ height: '300px', borderRadius: '6px 6px 0 0', overflow: 'hidden', position: 'relative' }}>
+                <div className="scene-viewport" style={{ height: '320px', borderRadius: '6px 6px 0 0', overflow: 'hidden', position: 'relative' }}>
                   <div className="scene-legend">
                     <span><i className="legend-dot info" />Info</span>
                     <span><i className="legend-dot warning" />Warning</span>
@@ -567,6 +593,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                         progress={progress} 
                         running={running} 
                         resetKey={resetKey} 
+                        adjustments={sceneAdjustments}
                         onSelect={setSelectedRecord} 
                         propagation={false} 
                       />
@@ -576,7 +603,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 </div>
 
                 {/* Video Playback Controls Bar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'var(--secondary)', border: '1px solid var(--border)', borderTop: 'none', padding: '0.75rem 1rem', borderRadius: '0 0 6px 6px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'var(--secondary)', border: '1px solid var(--border)', borderTop: 'none', padding: '0.75rem 1rem', borderRadius: '0', flexWrap: 'wrap' }}>
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -613,13 +640,6 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     </span>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontFamily: 'JetBrains Mono' }}>
-                    <span className="tiny-badge info" style={{ fontWeight: '700' }}>
-                      {running ? '● PLAYING (1x SPEED)' : 'PAUSED'}
-                    </span>
-                    <span style={{ color: 'var(--muted-foreground)' }}>{progress}% Time Window</span>
-                  </div>
-
                   <Button 
                     size="sm" 
                     variant="outline" 
@@ -628,6 +648,69 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                   >
                     <Zap size={12} /> Jump to Fault 6025
                   </Button>
+                </div>
+
+                {/* ADJUSTABLE 3D SCENE FEATURES BAR */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'var(--card)', border: '1px solid var(--border)', borderTop: 'none', padding: '0.85rem 1rem', borderRadius: '0 0 6px 6px', flexWrap: 'wrap', fontSize: '0.78rem' }}>
+                  <span style={{ color: '#38bdf8', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Settings size={14} /> 3D ADJUSTABLE CONTROLS:
+                  </span>
+
+                  {/* Camera Angles */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <span style={{ color: 'var(--muted-foreground)' }}>Perspective:</span>
+                    {[
+                      { id: 'iso', label: 'Iso 3D' },
+                      { id: 'top', label: 'Top Radar' },
+                      { id: 'focus_c', label: 'Node C' },
+                      { id: 'side', label: 'Side' }
+                    ].map(vp => (
+                      <button
+                        key={vp.id}
+                        onClick={() => setSceneAdjustments(prev => ({ ...prev, viewPreset: vp.id as any }))}
+                        style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', background: sceneAdjustments.viewPreset === vp.id ? '#0ea5e9' : 'var(--secondary)', color: sceneAdjustments.viewPreset === vp.id ? '#fff' : 'var(--card-foreground)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: '0.72rem' }}
+                      >
+                        {vp.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Height Exaggeration Slider */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ color: 'var(--muted-foreground)' }}>Height Scale:</span>
+                    <input 
+                      type="range" 
+                      min={0.5} 
+                      max={2.5} 
+                      step={0.1}
+                      value={sceneAdjustments.heightScale}
+                      onChange={e => setSceneAdjustments(prev => ({ ...prev, heightScale: parseFloat(e.target.value) }))}
+                      style={{ width: '70px', accentColor: '#38bdf8', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontFamily: 'JetBrains Mono', color: '#38bdf8' }}>{sceneAdjustments.heightScale.toFixed(1)}x</span>
+                  </div>
+
+                  {/* Point Size Slider */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ color: 'var(--muted-foreground)' }}>Point Size:</span>
+                    <input 
+                      type="range" 
+                      min={0.03} 
+                      max={0.15} 
+                      step={0.01}
+                      value={sceneAdjustments.pointSize}
+                      onChange={e => setSceneAdjustments(prev => ({ ...prev, pointSize: parseFloat(e.target.value) }))}
+                      style={{ width: '70px', accentColor: '#38bdf8', cursor: 'pointer' }}
+                    />
+                  </div>
+
+                  {/* Auto Spin Toggle */}
+                  <button
+                    onClick={() => setSceneAdjustments(prev => ({ ...prev, autoRotate: !prev.autoRotate }))}
+                    style={{ marginLeft: 'auto', padding: '0.25rem 0.65rem', borderRadius: '4px', background: sceneAdjustments.autoRotate ? 'rgba(52, 211, 153, 0.2)' : 'var(--secondary)', color: sceneAdjustments.autoRotate ? '#34d399' : 'var(--muted-foreground)', border: sceneAdjustments.autoRotate ? '1px solid #34d399' : '1px solid var(--border)', cursor: 'pointer', fontWeight: '700' }}
+                  >
+                    {sceneAdjustments.autoRotate ? '● Auto-Spin ON' : 'Auto-Spin OFF'}
+                  </button>
                 </div>
               </div>
 
