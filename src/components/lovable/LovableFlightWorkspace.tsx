@@ -458,45 +458,19 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <div className="heading-actions">
               {/* FEATURE 1: ONE-CLICK INVESTIGATION BUTTON ⭐ */}
               <Button 
-                style={{ background: 'linear-gradient(135deg, #0284c7, #0ea5e9)', color: '#fff', fontWeight: '700', gap: '0.45rem', boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' }}
-                onClick={runOneClickInvestigation}
+                style={{ background: 'linear-gradient(135deg, #0284c7, #0ea5e9)', color: '#fff', fontWeight: '700', gap: '0.45rem', padding: '0.6rem 1.25rem', fontSize: '0.85rem', boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' }}
+                onClick={() => setShowInvestigationResults(true)}
               >
-                <Zap size={15} /> Investigate System ⭐
-              </Button>
-
-              {/* Live Streaming Control Buttons */}
-              <Button 
-                variant={isLiveStreaming ? "destructive" : "default"} 
-                size="sm"
-                onClick={() => isLiveStreaming ? telemetryStreamer.stop() : telemetryStreamer.start(2)}
-                style={{ gap: '0.4rem', fontWeight: 600 }}
-              >
-                {isLiveStreaming ? <Pause size={14} /> : <Radio size={14} />}
-                {isLiveStreaming ? 'Pause Stream' : 'Start Stream'}
-              </Button>
-
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => { telemetryStreamer.seekToFault(); telemetryStreamer.start(5); }}
-                style={{ gap: '0.4rem' }}
-                title="Jump directly to Fault 6025 incident window"
-              >
-                <FastForward size={14} /> Jump to Fault 6025
+                <Zap size={16} /> Investigate System ⭐
               </Button>
 
               <Button variant="outline" onClick={() => exportRecords(filteredRecords)}>
-                <ArrowDownToLine size={14} />Export data
+                <ArrowDownToLine size={14} />Export CSV
               </Button>
             </div>
           </div>
 
-          <div className="dataset-ribbon">
-            <span><span className={`status-dot ${isLiveStreaming ? 'critical' : 'success'}`} />{isLiveStreaming ? `Live SSE Stream Active (${streamStats.totalStreamed} received)` : 'honeywell_fms_dataset.json'}</span>
-            <span>15 decoded HTML files<span className="ribbon-divider" />3 redundant nodes<span className="ribbon-divider" /><ShieldCheck size={13} /> 0 skipped records (100% PASS)</span>
-          </div>
-
-          {/* VIEW 1: MISSION OVERVIEW (CHANGE 1) */}
+          {/* VIEW 1: MISSION OVERVIEW */}
           {currentView === 'overview' && (
             <>
               <div className="metrics-grid">
@@ -515,15 +489,15 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 ))}
               </div>
 
-              {/* CHANGE 1: RECORD TOTALS BY LOG FAMILY BREAKDOWN GRID */}
+              {/* RECORD TOTALS BY LOG FAMILY BREAKDOWN GRID */}
               <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
                 <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '0.85rem' }}>Imported Record Breakdown by Log Family & Category</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
                   {Object.entries(dynamicSummary.totalsByCategory).map(([catName, count]) => (
                     <div 
                       key={catName}
-                      onClick={() => { setGlobalCategory(catName); setCurrentView('explorer'); }}
-                      style={{ background: 'var(--scene)', border: '1px solid var(--border)', padding: '0.85rem', borderRadius: '6px', cursor: 'pointer' }}
+                      onClick={() => { setGlobalCategory(catName); setCurrentView('evidence_quality'); }}
+                      style={{ background: 'var(--secondary)', border: '1px solid var(--border)', padding: '0.85rem', borderRadius: '6px', cursor: 'pointer' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: familyColors[catName] || 'var(--info)', fontWeight: '700' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: familyColors[catName] || 'var(--info)' }} />
@@ -538,100 +512,6 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="analysis-grid">
-                <section className={`scene-section ${expanded ? 'scene-expanded' : ''}`}>
-                  <div className="section-heading">
-                    <div className="section-title">
-                      <Box size={18} />
-                      <h2>3D Telemetry Event Landscape</h2>
-                      <span className="tiny-badge">WEBGL</span>
-                    </div>
-                    <div className="scene-header-controls">
-                      <Button size="icon" variant="ghost" title="Reset camera" aria-label="Reset camera" onClick={() => setResetKey(k => k + 1)}>
-                        <RotateCcw size={16} />
-                      </Button>
-                      <Button size="icon" variant="ghost" title={expanded ? 'Close expanded view' : 'Expand visualization'} aria-label={expanded ? 'Close expanded view' : 'Expand visualization'} onClick={() => setExpanded(!expanded)}>
-                        {expanded ? <X size={16} /> : <Expand size={16} />}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="scene-viewport">
-                    <div className="scene-legend">
-                      <span><i className="legend-dot info" />Info</span>
-                      <span><i className="legend-dot warning" />Warning</span>
-                      <span><i className="legend-dot critical" />Critical</span>
-                    </div>
-                    {hydrated && (
-                      <Suspense fallback={<div className="scene-loading">Loading 3D event landscape…</div>}>
-                        <LovableTelemetryScene 
-                          node={globalNode} 
-                          severity={globalSeverity} 
-                          progress={progress} 
-                          running={running} 
-                          resetKey={resetKey} 
-                          onSelect={setSelectedRecord} 
-                          propagation={false} 
-                        />
-                      </Suspense>
-                    )}
-                    <div className="scene-caption">TIME × SEVERITY × NODE</div>
-                    <div className="scene-record-count">
-                      <span className="status-dot teal" />{filteredRecords.length.toLocaleString()} records{progress < 100 ? ' · replay' : ''}
-                    </div>
-                  </div>
-
-                  <div className="scene-playback">
-                    <Button variant="ghost" size="icon" aria-label={running ? 'Pause replay' : 'Play replay'} onClick={() => { if (!running && progress === 100) setProgress(0); setRunning(!running); }}>
-                      {running ? <Pause size={16} /> : <Play size={16} />}
-                    </Button>
-                    <span className="mono">09:00:00</span>
-                    <input aria-label="Timeline position" type="range" min="0" max="100" value={progress} onChange={e => { setProgress(Number(e.target.value)); setRunning(false); }} />
-                    <span className="mono">14:00:09</span>
-                    <span className="playback-speed">1×</span>
-                  </div>
-                  <div className="scene-evidence">Directional links: dataset-supplied incident narrative & LangGraph event flow mapping</div>
-                </section>
-
-                <aside className="incident-panel">
-                  <div className="section-heading">
-                    <div className="section-title">
-                      <GitBranch size={17} />
-                      <h2>Incident Spotlight</h2>
-                    </div>
-                    <span className="tiny-badge critical">CRITICAL</span>
-                  </div>
-                  <div className="incident-body">
-                    <span className="eyebrow critical-text">PRIMARY FAULT · 6025</span>
-                    <h3>Background service<br />identity failure</h3>
-                    <div className="incident-meta">
-                      <span className="node-tag node_c">NODE C</span>
-                      <span className="mono">09:09:54 AM</span>
-                    </div>
-                    
-                    {/* Explicit Fact vs Inference Badges */}
-                    <div style={{ display: 'flex', gap: '0.4rem', margin: '0.5rem 0' }}>
-                      <span className="tiny-badge success">[FACT] Log Code 6025</span>
-                      <span className="tiny-badge" style={{ color: 'var(--info)' }}>[INFERENCE] PID 653</span>
-                    </div>
-
-                    <p>Process ID lookup failed with error 653. Causal analysis maps this event to repository lockouts and cross-node failover.</p>
-                    <div className="incident-code">get current process id failure 653;</div>
-                    <div className="incident-stats">
-                      <div><span>268</span><small>Code 6025 events</small></div>
-                      <div><span>3 nodes</span><small>Cascade coverage</small></div>
-                    </div>
-                    <div className="incident-recovery">
-                      <Check size={15} />
-                      <span>Recovery in source narrative<small>Dual-mode consensus · 09:43:07</small></span>
-                    </div>
-                    <Button variant="outline" className="w-full" onClick={() => setCurrentView('main_event')}>
-                      Inspect Incident Flow Arrows <ArrowRight size={14} />
-                    </Button>
-                  </div>
-                </aside>
               </div>
 
               {/* FEATURE 6: INVESTIGATION PRIORITY SCORING TABLE */}
