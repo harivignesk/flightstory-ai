@@ -14,7 +14,7 @@ function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () =
 function EventTable({ rows, onSelect, compact = false }: { rows: FlightRecord[]; onSelect: (r: FlightRecord) => void; compact?: boolean }) {
   return <div className="table-scroll"><table className={`event-table ${compact ? 'compact' : ''}`}><thead><tr><th>TIMESTAMP</th><th>NODE</th><th>SEVERITY</th><th>EVENT / LOG FAMILY</th><th>FAULT CODE</th><th /></tr></thead><tbody>{rows.map(r => <tr key={r.id} onClick={() => onSelect(r)}><td className="mono">{r.timestamp.slice(11)}</td><td><span className={`node-tag ${r.node.toLowerCase()}`}>{r.node.replace('_', ' ')}</span></td><td><span className={`severity ${r.severity.toLowerCase()}`}><i />{r.severity}</span></td><td><strong>{r.fault_name || shortFamily(r.log_family)}</strong><span className="table-message">{r.message}</span></td><td className="mono">{r.fault_code ?? '—'}</td><td><Button variant="ghost" size="icon" aria-label={`Inspect record ${r.id}`} onClick={e => { e.stopPropagation(); onSelect(r); }}><ChevronRight /></Button></td></tr>)}</tbody></table>{rows.length === 0 && <div className="empty-state">No records match these filters.</div>}</div>;
 }
-export function FlightWorkspace({ view }: { view: View }) {
+export function LovableFlightWorkspace({ view = 'overview' }: { view?: View }) {
   const [hydrated, setHydrated] = useState(false);
   const [node, setNode] = useState('ALL'); const [severity, setSeverity] = useState('ALL');
   const [query, setQuery] = useState(''); const [page, setPage] = useState(0);
