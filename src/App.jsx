@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import KPICards from './components/KPICards';
 import InteractiveFreeFlowGraph from './components/InteractiveFreeFlowGraph';
+import LovableFlightWorkspace from './components/lovable/LovableFlightWorkspace';
 import SupervisorBriefing from './components/SupervisorBriefing';
 import LogVisualization3D from './components/LogVisualization3D';
 import MainEventMapper from './components/MainEventMapper';
@@ -77,6 +78,10 @@ export default function App() {
         {/* Tab Views */}
         {activeTab === 'free_flow' && (
           <InteractiveFreeFlowGraph records={records} rootCauseData={rootCauseData} />
+        )}
+
+        {activeTab === 'lovable_workspace' && (
+          <LovableFlightWorkspace />
         )}
 
         {activeTab === 'supervisor' && (

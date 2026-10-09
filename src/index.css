@@ -465,3 +465,54 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
   }
 }
+
+/* Lovable Scene Labels & Badges */
+.scene-node-label {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+}
+
+.scene-node-label small {
+  color: #94a3b8;
+  font-size: 0.65rem;
+}
+
+.scene-fault-label {
+  background: rgba(248, 113, 113, 0.9);
+  color: #ffffff;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.scene-fault-label small {
+  font-size: 0.65rem;
+  color: #fef2f2;
+}
+
+.scene-fault-label.recovery {
+  background: rgba(168, 85, 247, 0.9);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+}
+
+.scene-time {
+  background: rgba(15, 23, 42, 0.8);
+  color: #94a3b8;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   Zap, 
+  Plane,
   ShieldCheck, 
   Box, 
   Target, 
@@ -8,7 +9,6 @@ import {
   GitCompare, 
   AlertTriangle, 
   Database, 
-  CheckCircle2, 
   Download,
   Search,
   Server,
@@ -17,7 +17,8 @@ import {
 
 export default function Header({ activeTab, setActiveTab, onExportCSV, globalSearch, setGlobalSearch }) {
   const tabs = [
-    { id: 'free_flow', label: '⚡ Free-Flow Animatic Causal Graph (Evaluation Main)', icon: Zap },
+    { id: 'free_flow', label: '⚡ Free-Flow Animatic Causal Graph', icon: Zap },
+    { id: 'lovable_workspace', label: '✈️ Lovable Telemetry Workspace', icon: Plane },
     { id: 'supervisor', label: '🛡️ Supervisor Briefing', icon: ShieldCheck },
     { id: '3d_view', label: '🔮 3D Log Space', icon: Box },
     { id: 'main_event', label: '🎯 Main Event Mapper (PS)', icon: Target },
@@ -37,8 +38,8 @@ export default function Header({ activeTab, setActiveTab, onExportCSV, globalSea
             <Activity className="w-6 h-6 text-cyan-400" />
           </div>
           <div className="brand-text">
-            <h1>FlightStory AI - LangGraph Mission Control</h1>
-            <p>LangGraph Causal Event Flow & Touch-Interactive Visualizer</p>
+            <h1>FlightStory AI - Lovable Unified Control</h1>
+            <p>LangGraph Event Causal Flow & 3D WebGL Aerospace Dashboard</p>
           </div>
         </div>
 
@@ -54,7 +55,7 @@ export default function Header({ activeTab, setActiveTab, onExportCSV, globalSea
             <span className="pulse-dot"></span> NODE C: 1,881
           </div>
           <div className="badge badge-critical font-mono">
-            LANGGRAPH FLOW ENRICHED
+            LOVABLE CONNECTED
           </div>
           <div className="badge badge-success">
             5,257 RECS MAPPED
