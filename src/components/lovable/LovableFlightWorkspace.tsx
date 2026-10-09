@@ -22,6 +22,9 @@ import NaturalLanguageQA from '../NaturalLanguageQA';
 import ThreeNodeTimeline from '../ThreeNodeTimeline';
 import ConnectedLevelsView from '../ConnectedLevelsView';
 import CorrelationTab from '../CorrelationTab';
+import FlightRouteMap from '../FlightRouteMap';
+import NodeTopologyGraph from '../NodeTopologyGraph';
+import VisualGaugesPanel from '../VisualGaugesPanel';
 
 const LovableTelemetryScene = lazy(() => import('./telemetry-scene'));
 
@@ -506,6 +509,9 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
           {/* VIEW 1: MISSION OVERVIEW */}
           {currentView === 'overview' && (
             <>
+              {/* RADIAL GAUGES & RISK SCORING PANEL */}
+              <VisualGaugesPanel filteredRecords={filteredRecords} />
+
               <div className="metrics-grid">
                 {[
                   { label: 'TOTAL IMPORTED RECORDS', value: dynamicSummary.total.toLocaleString(), icon: Database, sub: `A: ${dynamicSummary.totalsByNode.NODE_A} · B: ${dynamicSummary.totalsByNode.NODE_B} · C: ${dynamicSummary.totalsByNode.NODE_C}`, foot: '0 records skipped (100% PASS)', type: 'neutral' },
@@ -712,6 +718,16 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     {sceneAdjustments.autoRotate ? '● Auto-Spin ON' : 'Auto-Spin OFF'}
                   </button>
                 </div>
+              </div>
+
+              {/* 3D AVIONICS FLIGHT ROUTE MAP (VISUAL ALTIMETER & WAYPOINT MAP) */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <FlightRouteMap onSelectRecord={(rec) => { setSelectedRecord(rec); setCurrentView('fault_explorer'); }} />
+              </div>
+
+              {/* FMS TRIPLE REDUNDANCY NODE TOPOLOGY GRAPH */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <NodeTopologyGraph onSelectNode={(n) => { setGlobalNode(n); }} />
               </div>
 
               {/* FEATURE 6: INVESTIGATION PRIORITY SCORING TABLE */}
