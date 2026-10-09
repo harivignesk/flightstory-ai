@@ -3,46 +3,62 @@ import {
   Activity, ArrowDownToLine, ArrowRight, Bell, Box, Check, ChevronDown, 
   ChevronLeft, ChevronRight, CircleHelp, Database, Expand, FileText, 
   GitBranch, LayoutDashboard, Network, Pause, Plane, Play, RotateCcw, 
-  Search, Settings2, ShieldCheck, Target, Zap, Server, X, Radio, FastForward, Sparkles
+  Search, Settings2, ShieldCheck, Target, Zap, Server, X, Radio, FastForward, 
+  Sparkles, Clock, Layers, GitMerge, Filter, RefreshCw
 } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { dataset, records, summary, timeline, nodes, nodeLabels, filterRecords, exportRecords, type FlightRecord } from '../../data/flight-data';
+import { 
+  dataset, records as allRecords, summary as rawSummary, timeline, nodes, nodeLabels, 
+  filterRecords, exportRecords, getDatasetSummary, logFamilies, logFamilyCategories, familyColors,
+  type FlightRecord 
+} from '../../data/flight-data';
 import telemetryStreamer from '../../data/telemetry-streamer';
 
 import InteractiveFreeFlowGraph from '../InteractiveFreeFlowGraph';
 import MainEventMapper from '../MainEventMapper';
 import NaturalLanguageQA from '../NaturalLanguageQA';
+import ThreeNodeTimeline from '../ThreeNodeTimeline';
+import ConnectedLevelsView from '../ConnectedLevelsView';
+import CorrelationTab from '../CorrelationTab';
 
 const LovableTelemetryScene = lazy(() => import('./telemetry-scene'));
 
-export type View = 'overview' | 'main_event' | 'free_flow' | 'explorer' | 'qa_advanced';
+export type View = 'overview' | 'timeline' | 'connected_levels' | 'correlation' | 'ai_narrative' | 'main_event' | 'free_flow' | 'explorer';
 
-// 5 MOST WANTED HIGH-PRIORITY EVALUATION FEATURES
 const navigation = [
-  { view: 'overview', path: '/', label: '1. Overview & 3D Telemetry', icon: LayoutDashboard },
-  { view: 'main_event', path: '/main_event', label: '2. Incident Causal Flow (Arrows)', icon: Target, badge: 'FLOW' },
-  { view: 'free_flow', path: '/free_flow', label: '3. Interactive Free-Flow Graph', icon: Zap, badge: 'TOUCH' },
-  { view: 'explorer', path: '/explorer', label: '4. Evidence Log Explorer', icon: Database, badge: '5,257' },
-  { view: 'qa_advanced', path: '/qa_advanced', label: '5. Explainable AI Q&A & Scoring', icon: Sparkles, badge: 'ADV' }
+  { view: 'overview', path: '/', label: '1. Mission Overview', icon: LayoutDashboard },
+  { view: 'timeline', path: '/timeline', label: '2. 3-Node Timeline', icon: Clock, badge: 'LANES' },
+  { view: 'connected_levels', path: '/connected_levels', label: '3. 4-Level Drilldown', icon: Layers, badge: 'L1-L4' },
+  { view: 'correlation', path: '/correlation', label: '4. Event Correlation', icon: GitMerge },
+  { view: 'ai_narrative', path: '/ai_narrative', label: '5. AI Incident Narrative', icon: Sparkles, badge: 'FACTS' },
+  { view: 'main_event', path: '/main_event', label: '6. Causal Incident Flow', icon: Target, badge: 'ARROWS' },
+  { view: 'free_flow', path: '/free_flow', label: '7. Free-Flow Graph', icon: Zap, badge: 'TOUCH' },
+  { view: 'explorer', path: '/explorer', label: '8. Evidence Explorer', icon: Database, badge: '5,257' }
 ] as const;
 
 const shortFamily = (family: string) => family.replace(' Log', '').replace(' Buffer', '').replace('FM ', '');
 
 const titles: Record<View, string> = {
-  overview: '1. Mission Overview & 3D Telemetry Landscape',
-  main_event: '2. LangGraph Incident-to-Incident Causal Flow (Directional Arrows)',
-  free_flow: '3. Interactive Free-Flow Causal Graph (Touch & Physics)',
-  explorer: '4. Level 4 Evidence Detail & Log Explorer (5,257 Records)',
-  qa_advanced: '5. Explainable AI Q&A, Anomaly Scoring & Node Agreement'
+  overview: '1. Mission Overview & System-Wide Log Family Metrics',
+  timeline: '2. 3-Node Synchronized Incident Timeline (NODE_A, NODE_B, NODE_C)',
+  connected_levels: '3. Connected 4-Level Drill-Down Workflow (L1 to L4)',
+  correlation: '4. Cross-Node Event Correlation & Relationship Rationales',
+  ai_narrative: '5. Evidence-Linked 5-Part AI Incident Narrative & Q&A',
+  main_event: '6. LangGraph Incident-to-Incident Causal Flow (Directional Arrows)',
+  free_flow: '7. Interactive Free-Flow Causal Graph (Touch & Spring Physics)',
+  explorer: '8. Level 4 Source Evidence & Raw Payload Log Explorer'
 };
 
 const subtitles: Record<View, string> = {
-  overview: 'Level 1 Flight Overview: KPI metrics, 3D WebGL telemetry scene, operational phases, and recovery summary.',
+  overview: 'System-wide activity, totals by node and log family, data-quality warnings, and compact timeline.',
+  timeline: 'Horizontal lanes for NODE_A, NODE_B, and NODE_C with 5 log family markers, zoom, and time navigation.',
+  connected_levels: 'Level 1 Overview ➔ Level 2 Fault Detail ➔ Level 3 Context ➔ Level 4 Source Evidence.',
+  correlation: 'Associations with rationales: Temporal, Contextual, Possible Duplicate, No Match Found.',
+  ai_narrative: 'Strict separation of Facts (linked to Event IDs), Inferred Relationships, Uncertainty, and Next Steps.',
   main_event: 'Chronological incident flow with glowing directional arrows (➔) mapping First Incident to Next Incident.',
-  free_flow: 'Touch-interactive animatic spring physics stream mapping timestamp events across NODE A, B, and C.',
-  explorer: 'Decoded engineering payload evidence, source file links, search filters, and CSV data export.',
-  qa_advanced: 'Natural-language log query assistant, anomaly scoring engine, and Facts vs Inference vs Uncertainty separation.'
+  free_flow: 'Touch-interactive animatic spring physics stream mapping timestamp events across nodes.',
+  explorer: 'Decoded engineering payload evidence, source file links, search filters, and CSV data export.'
 };
 
 function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () => void }) {
@@ -72,6 +88,7 @@ function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () =
             ['Node', record.node],
             ['Timestamp', record.timestamp],
             ['Log family', record.log_family],
+            ['Event Category', logFamilyCategories[record.log_family] || 'Software Events'],
             ['Fault code', record.fault_code ?? '—'],
             ['Source file', record.filename],
             ['Event Flow', (record as any).event_flow || 'Normal operation']
@@ -141,11 +158,16 @@ function EventTable({ rows, onSelect, compact = false }: { rows: FlightRecord[];
 export function LovableFlightWorkspace({ view: initialView = 'overview' }: { view?: View }) {
   const [currentView, setCurrentView] = useState<View>(initialView);
   const [hydrated, setHydrated] = useState(false);
-  const [node, setNode] = useState('ALL');
-  const [severity, setSeverity] = useState('ALL');
+  
+  // CHANGE 6: Consistent Global Filters State
+  const [globalNode, setGlobalNode] = useState('ALL');
+  const [globalSeverity, setGlobalSeverity] = useState('ALL');
+  const [globalCategory, setGlobalCategory] = useState('ALL');
+  const [globalFaultCode, setGlobalFaultCode] = useState('ALL');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
-  const [selected, setSelected] = useState<FlightRecord | null>(null);
+
+  const [selectedRecord, setSelectedRecord] = useState<FlightRecord | null>(null);
   const [running, setRunning] = useState(true);
   const [progress, setProgress] = useState(100);
   const [resetKey, setResetKey] = useState(0);
@@ -183,14 +205,33 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
     return unsubscribe;
   }, []);
 
-  const filtered = useMemo(() => filterRecords(query, node, severity), [query, node, severity]);
-  const recent = useMemo(() => [...filtered].filter(r => r.fault_code === 6025 || r.severity === 'CRITICAL').sort((a,b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 5), [filtered]);
-  const totalPages = Math.max(1, Math.ceil(filtered.length / 20));
+  // Filtered dataset according to Global Filters
+  const filteredRecords = useMemo(() => {
+    return filterRecords({
+      query,
+      node: globalNode,
+      severity: globalSeverity,
+      category: globalCategory,
+      faultCode: globalFaultCode
+    });
+  }, [query, globalNode, globalSeverity, globalCategory, globalFaultCode]);
 
-  function setFilter(kind: 'node' | 'severity', value: string) {
-    kind === 'node' ? setNode(value) : setSeverity(value);
+  // Dynamic Dataset Summary Stats
+  const dynamicSummary = useMemo(() => getDatasetSummary(filteredRecords), [filteredRecords]);
+
+  const recent = useMemo(() => [...filteredRecords].filter(r => r.fault_code === 6025 || r.severity === 'CRITICAL').sort((a,b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 5), [filteredRecords]);
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / 20));
+
+  const resetAllFilters = () => {
+    setGlobalNode('ALL');
+    setGlobalSeverity('ALL');
+    setGlobalCategory('ALL');
+    setGlobalFaultCode('ALL');
+    setQuery('');
     setPage(0);
-  }
+  };
+
+  const cascade = dataset.root_cause_analysis.event_cascade_steps;
 
   return (
     <div className="workspace">
@@ -198,7 +239,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
       <aside className="sidebar">
         <button type="button" className="brand" onClick={() => setCurrentView('overview')}>
           <span className="brand-mark"><Plane /></span>
-          <span>FlightStory<span className="brand-ai">AI</span><small>EVALUATION WORKSPACE</small></span>
+          <span>FlightStory<span className="brand-ai">AI</span><small>INVESTIGATION WORKSPACE</small></span>
         </button>
 
         <div className="workspace-selector">
@@ -207,7 +248,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
           <ChevronDown size={14} />
         </div>
 
-        <span className="nav-caption">TOP 5 EVALUATION FEATURES</span>
+        <span className="nav-caption">INVESTIGATION NAVIGATION</span>
         <nav>
           {navigation.map(n => (
             <button 
@@ -230,7 +271,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <div className="sidebar-node" key={n}>
               <span className={`status-dot ${i === 2 ? 'critical' : 'success'}`} />
               <span>{n.replace('_', ' ')}<small>{nodeLabels[n]}</small></span>
-              <span className="node-count">{records.filter(r => r.node === n).length.toLocaleString()}</span>
+              <span className="node-count">{allRecords.filter(r => r.node === n).length.toLocaleString()}</span>
             </div>
           ))}
         </div>
@@ -256,7 +297,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
       <div className="main-shell">
         <header className="topbar">
           <div className="breadcrumb">
-            Evaluation <ChevronRight size={13} /> <span>{titles[currentView]}</span>
+            Investigation <ChevronRight size={13} /> <span>{titles[currentView]}</span>
           </div>
           <div className="topbar-actions">
             {/* Live Streaming Badge */}
@@ -313,9 +354,78 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
         )}
 
         <main className="main-content">
+          
+          {/* CHANGE 6: UNIFIED GLOBAL FILTERS BAR */}
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.85rem 1.1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--info)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Filter size={15} /> GLOBAL FILTERS:
+            </span>
+
+            {/* Node Filter */}
+            <select 
+              value={globalNode} 
+              onChange={e => setGlobalNode(e.target.value)}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+            >
+              <option value="ALL">All Nodes (A, B, C)</option>
+              <option value="NODE_A">NODE_A (Master)</option>
+              <option value="NODE_B">NODE_B (Standby)</option>
+              <option value="NODE_C">NODE_C (Auxiliary)</option>
+            </select>
+
+            {/* Severity Filter */}
+            <select 
+              value={globalSeverity} 
+              onChange={e => setGlobalSeverity(e.target.value)}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+            >
+              <option value="ALL">All Severities</option>
+              <option value="INFO">INFO Only</option>
+              <option value="WARNING">WARNING Only</option>
+              <option value="CRITICAL">CRITICAL Only</option>
+            </select>
+
+            {/* Log Family / Category Filter */}
+            <select 
+              value={globalCategory} 
+              onChange={e => setGlobalCategory(e.target.value)}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+            >
+              <option value="ALL">All 5 Log Families</option>
+              <option value="Aircraft State">Aircraft State</option>
+              <option value="Fault History">Fault History</option>
+              <option value="Operator Interaction">Operator Interaction</option>
+              <option value="Software Events">Software Events</option>
+              <option value="State Transition">State Transition</option>
+            </select>
+
+            {/* Fault Code Filter */}
+            <select 
+              value={globalFaultCode} 
+              onChange={e => setGlobalFaultCode(e.target.value)}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+            >
+              <option value="ALL">All Fault Codes</option>
+              <option value="6025">Fault 6025 (Primary PID Fail)</option>
+              <option value="6074">Fault 6074 (Buffer Lockout)</option>
+              <option value="6029">Fault 6029 (Semaphore Timeout)</option>
+              <option value="6035">Fault 6035 (Consensus Restored)</option>
+              <option value="NONE">No Fault Code (Nominal)</option>
+            </select>
+
+            {/* Reset Button */}
+            <button 
+              onClick={resetAllFilters} 
+              className="nav-item" 
+              style={{ width: 'auto', padding: '0.4rem 0.75rem', fontSize: '0.78rem', background: 'var(--secondary)', color: 'var(--muted-foreground)', marginLeft: 'auto' }}
+            >
+              <RefreshCw size={13} /> Reset Filters
+            </button>
+          </div>
+
           <div className="page-heading">
             <div>
-              <div className="eyebrow">FLIGHT MANAGEMENT SYSTEM <span>/</span> EVALUATION FEATURE #{currentView === 'overview' ? 1 : currentView === 'main_event' ? 2 : currentView === 'free_flow' ? 3 : currentView === 'explorer' ? 4 : 5}</div>
+              <div className="eyebrow">FLIGHT MANAGEMENT SYSTEM <span>/</span> MULTI-NODE INVESTIGATION</div>
               <h1>{titles[currentView]}</h1>
               <p>{subtitles[currentView]}</p>
             </div>
@@ -341,7 +451,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 <FastForward size={14} /> Jump to Fault 6025
               </Button>
 
-              <Button variant="outline" onClick={() => exportRecords(filtered)}>
+              <Button variant="outline" onClick={() => exportRecords(filteredRecords)}>
                 <ArrowDownToLine size={14} />Export data
               </Button>
             </div>
@@ -352,15 +462,15 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <span>15 decoded HTML files<span className="ribbon-divider" />3 redundant nodes<span className="ribbon-divider" /><ShieldCheck size={13} /> 0 skipped records (100% PASS)</span>
           </div>
 
-          {/* FEATURE 1: OVERVIEW & 3D TELEMETRY */}
+          {/* VIEW 1: MISSION OVERVIEW (CHANGE 1) */}
           {currentView === 'overview' && (
             <>
               <div className="metrics-grid">
                 {[
-                  { label: 'TOTAL RECORDS', value: isLiveStreaming ? streamStats.totalStreamed.toLocaleString() : '5,257', icon: Database, sub: isLiveStreaming ? 'Live SSE Streamed' : 'Across 15 source files', foot: '0 records skipped (100% PASS)', type: 'neutral' },
-                  { label: 'CRITICAL EVENTS', value: summary.critical.toLocaleString(), icon: Activity, sub: '11.7% of normalized records', foot: 'Requires investigation', type: 'critical' },
-                  { label: 'CONNECTED NODES', value: '3 / 3', icon: Network, sub: 'NODE_A · NODE_B · NODE_C', foot: 'All nodes represented', type: 'success' },
-                  { label: 'DATA VALIDATION', value: '100%', icon: ShieldCheck, sub: 'All 15 files marked PASS', foot: 'Definition of done passed', type: 'teal' }
+                  { label: 'TOTAL IMPORTED RECORDS', value: dynamicSummary.total.toLocaleString(), icon: Database, sub: `A: ${dynamicSummary.totalsByNode.NODE_A} · B: ${dynamicSummary.totalsByNode.NODE_B} · C: ${dynamicSummary.totalsByNode.NODE_C}`, foot: '0 records skipped (100% PASS)', type: 'neutral' },
+                  { label: 'CRITICAL EVENTS', value: dynamicSummary.critical.toLocaleString(), icon: Activity, sub: 'Significant fault occurrences', foot: `${dynamicSummary.fault6025Count} Code 6025 events`, type: 'critical' },
+                  { label: 'LOG FAMILY COVERAGE', value: `${Object.keys(dynamicSummary.totalsByCategory).length} / 5`, icon: Network, sub: 'Aircraft, Fault, Op, Sw, State', foot: 'All 5 log families parsed', type: 'success' },
+                  { label: 'DATA QUALITY STATUS', value: '100%', icon: ShieldCheck, sub: 'All 15 source files passed', foot: 'Definition of done passed', type: 'teal' }
                 ].map(m => (
                   <article className={`metric ${m.type}`} key={m.label}>
                     <div className="metric-label">{m.label}<m.icon size={17} /></div>
@@ -369,6 +479,31 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     <div className="metric-foot"><span className={`status-dot ${m.type}`} />{m.foot}</div>
                   </article>
                 ))}
+              </div>
+
+              {/* CHANGE 1: RECORD TOTALS BY LOG FAMILY BREAKDOWN GRID */}
+              <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '0.85rem' }}>Imported Record Breakdown by Log Family & Category</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                  {Object.entries(dynamicSummary.totalsByCategory).map(([catName, count]) => (
+                    <div 
+                      key={catName}
+                      onClick={() => { setGlobalCategory(catName); setCurrentView('explorer'); }}
+                      style={{ background: 'var(--scene)', border: '1px solid var(--border)', padding: '0.85rem', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: familyColors[catName] || 'var(--info)', fontWeight: '700' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: familyColors[catName] || 'var(--info)' }} />
+                        {catName}
+                      </div>
+                      <div style={{ fontSize: '1.5rem', color: '#fff', fontWeight: '700', margin: '0.2rem 0' }}>
+                        {count.toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
+                        {((count / dynamicSummary.total) * 100).toFixed(1)}% of filtered total
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="analysis-grid">
@@ -389,25 +524,6 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     </div>
                   </div>
 
-                  <div className="scene-filterbar">
-                    <div className="segmented">
-                      {['ALL', ...nodes].map(n => (
-                        <Button key={n} size="sm" variant="ghost" className={node === n ? 'selected' : ''} onClick={() => setFilter('node', n)}>
-                          {n === 'ALL' ? 'All nodes' : n.replace('_', ' ')}
-                        </Button>
-                      ))}
-                    </div>
-                    <label className="select-label">
-                      <Settings2 size={14} />
-                      <select aria-label="Scene severity" value={severity} onChange={e => setFilter('severity', e.target.value)}>
-                        <option value="ALL">All severities</option>
-                        <option>INFO</option>
-                        <option>WARNING</option>
-                        <option>CRITICAL</option>
-                      </select>
-                    </label>
-                  </div>
-
                   <div className="scene-viewport">
                     <div className="scene-legend">
                       <span><i className="legend-dot info" />Info</span>
@@ -417,19 +533,19 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     {hydrated && (
                       <Suspense fallback={<div className="scene-loading">Loading 3D event landscape…</div>}>
                         <LovableTelemetryScene 
-                          node={node} 
-                          severity={severity} 
+                          node={globalNode} 
+                          severity={globalSeverity} 
                           progress={progress} 
                           running={running} 
                           resetKey={resetKey} 
-                          onSelect={setSelected} 
+                          onSelect={setSelectedRecord} 
                           propagation={false} 
                         />
                       </Suspense>
                     )}
                     <div className="scene-caption">TIME × SEVERITY × NODE</div>
                     <div className="scene-record-count">
-                      <span className="status-dot teal" />{filtered.length.toLocaleString()} records{progress < 100 ? ' · replay' : ''}
+                      <span className="status-dot teal" />{filteredRecords.length.toLocaleString()} records{progress < 100 ? ' · replay' : ''}
                     </div>
                   </div>
 
@@ -488,7 +604,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                 <section className="timeline-section">
                   <div className="section-heading">
                     <div>
-                      <h2>Event Activity</h2>
+                      <h2>Compact Activity Timeline</h2>
                       <p className="section-subtitle">10-minute intervals across recorded window</p>
                     </div>
                     <div className="chart-legend">
@@ -520,79 +636,73 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                     <span className="section-subtitle">Record volume</span>
                   </div>
                   {nodes.map((n, i) => {
-                    const count = records.filter(r => r.node === n).length;
+                    const count = filteredRecords.filter(r => r.node === n).length;
                     return (
                       <div className="node-health-row" key={n}>
                         <span className={`node-icon node_${String.fromCharCode(97 + i)}`}><Network size={15} /></span>
                         <div>
                           <strong>{n.replace('_', ' ')}<span>{count.toLocaleString()}</span></strong>
                           <small>{nodeLabels[n]}</small>
-                          <progress value={count} max={summary.total} />
+                          <progress value={count} max={Math.max(1, dynamicSummary.total)} />
                         </div>
-                        <span className="distribution-pct">{(count / summary.total * 100).toFixed(1)}%</span>
+                        <span className="distribution-pct">{((count / Math.max(1, dynamicSummary.total)) * 100).toFixed(1)}%</span>
                       </div>
                     );
                   })}
                 </section>
               </div>
-
-              <section className="recent-section">
-                <div className="section-heading">
-                  <div className="section-title">
-                    <Activity size={16} />
-                    <h2>Critical Event Feed</h2>
-                    <span className="tiny-badge">IMPORTED</span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setCurrentView('explorer')}>
-                    View all records <ArrowRight size={14} />
-                  </Button>
-                </div>
-                <EventTable rows={recent} onSelect={setSelected} compact />
-              </section>
             </>
           )}
 
-          {/* FEATURE 2: INCIDENT CAUSAL FLOW WITH DIRECTIONAL ARROWS */}
+          {/* VIEW 2: 3-NODE INCIDENT TIMELINE (CHANGE 2) */}
+          {currentView === 'timeline' && (
+            <ThreeNodeTimeline 
+              records={filteredRecords} 
+              onSelectEvent={(rec) => { setSelectedRecord(rec); setCurrentView('connected_levels'); }}
+              selectedEventId={selectedRecord?.id}
+            />
+          )}
+
+          {/* VIEW 3: CONNECTED 4-LEVEL DRILLDOWN (CHANGE 3) */}
+          {currentView === 'connected_levels' && (
+            <ConnectedLevelsView 
+              selectedRecord={selectedRecord} 
+              onSelectRecord={(rec) => setSelectedRecord(rec)} 
+            />
+          )}
+
+          {/* VIEW 4: EVENT CORRELATION WITH RATIONALES (CHANGE 4) */}
+          {currentView === 'correlation' && (
+            <CorrelationTab 
+              records={filteredRecords} 
+              onSelectRecord={(rec) => { setSelectedRecord(rec); setCurrentView('connected_levels'); }} 
+            />
+          )}
+
+          {/* VIEW 5: EVIDENCE-LINKED AI INCIDENT NARRATIVE (CHANGE 5) */}
+          {currentView === 'ai_narrative' && (
+            <NaturalLanguageQA records={filteredRecords} rootCauseData={dataset.root_cause_analysis} />
+          )}
+
+          {/* VIEW 6: CAUSAL INCIDENT FLOW WITH ARROWS */}
           {currentView === 'main_event' && (
             <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <MainEventMapper rootCauseData={dataset.root_cause_analysis} records={records} />
+              <MainEventMapper rootCauseData={dataset.root_cause_analysis} records={filteredRecords} />
             </div>
           )}
 
-          {/* FEATURE 3: INTERACTIVE FREE-FLOW CAUSAL GRAPH (TOUCH) */}
+          {/* VIEW 7: INTERACTIVE FREE-FLOW GRAPH */}
           {currentView === 'free_flow' && (
             <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <InteractiveFreeFlowGraph records={records} rootCauseData={dataset.root_cause_analysis} />
+              <InteractiveFreeFlowGraph records={filteredRecords} rootCauseData={dataset.root_cause_analysis} />
             </div>
           )}
 
-          {/* FEATURE 4: UNIFIED LOG EXPLORER & LEVEL 4 EVIDENCE (5,257) */}
+          {/* VIEW 8: UNIFIED LOG EXPLORER & LEVEL 4 EVIDENCE (CHANGE 7) */}
           {currentView === 'explorer' && (
             <section className="explorer-section">
-              <div className="explorer-controls">
-                <div className="search-field">
-                  <Search size={16} />
-                  <input 
-                    aria-label="Search logs" 
-                    placeholder="Search messages, fault codes, or timestamps…" 
-                    value={query} 
-                    onChange={e => { setQuery(e.target.value); setPage(0); }} 
-                  />
-                </div>
-                <select aria-label="Filter node" value={node} onChange={e => setFilter('node', e.target.value)}>
-                  <option value="ALL">All nodes</option>
-                  {nodes.map(n => <option key={n}>{n}</option>)}
-                </select>
-                <select aria-label="Filter severity" value={severity} onChange={e => setFilter('severity', e.target.value)}>
-                  <option value="ALL">All severities</option>
-                  <option>INFO</option>
-                  <option>WARNING</option>
-                  <option>CRITICAL</option>
-                </select>
-              </div>
-
-              <div className="result-count">{filtered.length.toLocaleString()} matching records (0 skipped / 100% importer coverage)</div>
-              <EventTable rows={filtered.slice(page * 20, page * 20 + 20)} onSelect={setSelected} />
+              <div className="result-count">{filteredRecords.length.toLocaleString()} matching records (0 skipped / 100% importer coverage)</div>
+              <EventTable rows={filteredRecords.slice(page * 20, page * 20 + 20)} onSelect={setSelectedRecord} />
               
               <div className="pagination">
                 <span>Page {page + 1} of {totalPages}</span>
@@ -608,13 +718,6 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             </section>
           )}
 
-          {/* FEATURE 5: EXPLAINABLE AI Q&A & ANOMALY SCORING (ADVANCED) */}
-          {currentView === 'qa_advanced' && (
-            <div style={{ marginTop: '1rem' }}>
-              <NaturalLanguageQA records={records} rootCauseData={dataset.root_cause_analysis} />
-            </div>
-          )}
-
           <footer className="page-footer">
             <span><Plane size={13} />FlightStory AI <span className="footer-separator">/</span> Explainable AI investigation platform</span>
             <span>Source snapshot · 18 June 2032 <span className="status-dot success" /></span>
@@ -622,7 +725,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
         </main>
       </div>
 
-      {selected && <RecordDetail record={selected} onClose={() => setSelected(null)} />}
+      {selectedRecord && <RecordDetail record={selectedRecord} onClose={() => setSelectedRecord(null)} />}
 
       {help && (
         <div className="drawer-shade" onClick={() => setHelp(false)}>
