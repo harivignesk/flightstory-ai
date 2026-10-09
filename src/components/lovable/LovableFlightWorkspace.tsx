@@ -31,10 +31,7 @@ export type View =
   | 'fault_explorer' 
   | 'operational_context' 
   | 'ai_narrative' 
-  | 'evidence_quality'
-  | 'main_event'
-  | 'free_flow'
-  | 'explorer';
+  | 'evidence_quality';
 
 const navigation = [
   { view: 'overview', label: 'Flight Overview', icon: LayoutDashboard },
@@ -43,9 +40,7 @@ const navigation = [
   { view: 'fault_explorer', label: 'Fault & Event Explorer', icon: Layers, badge: 'LEVEL 2' },
   { view: 'operational_context', label: 'Operational Context', icon: Network, badge: 'LEVEL 3' },
   { view: 'ai_narrative', label: 'AI Incident Analyst', icon: Sparkles, badge: 'FACTS' },
-  { view: 'evidence_quality', label: 'Evidence & Data Quality', icon: Database, badge: 'LEVEL 4' },
-  { view: 'main_event', label: 'Causal Incident Flow', icon: Target, badge: 'ARROWS' },
-  { view: 'free_flow', label: 'Free-Flow Graph', icon: Zap }
+  { view: 'evidence_quality', label: 'Evidence & Data Quality', icon: Database, badge: 'LEVEL 4' }
 ] as const;
 
 const shortFamily = (family: string) => family.replace(' Log', '').replace(' Buffer', '').replace('FM ', '');
@@ -57,10 +52,7 @@ const titles: Record<View, string> = {
   fault_explorer: 'Fault & Event Explorer (Level 2 Detail)',
   operational_context: 'Operational Context & System State (Level 3)',
   ai_narrative: 'Explainable AI Incident Analyst & Evidence Narrative',
-  evidence_quality: 'Evidence & Data Quality (Level 4 Payload Explorer)',
-  main_event: 'LangGraph Incident-to-Incident Causal Flow (Directional Arrows)',
-  free_flow: 'Interactive Free-Flow Causal Graph (Touch & Spring Physics)',
-  explorer: 'Decoded Raw Payload Log Explorer'
+  evidence_quality: 'Evidence & Data Quality (Level 4 Payload Explorer)'
 };
 
 const subtitles: Record<View, string> = {
@@ -70,10 +62,7 @@ const subtitles: Record<View, string> = {
   fault_explorer: 'Detailed fault inspection: event code, duration, impact, recovery, and correlation breakdown.',
   operational_context: 'FMS state transitions, operator interactions, software events, and cross-node activity.',
   ai_narrative: 'Strict separation of Facts (linked to Event IDs), Inferred Relationships, Uncertainty, and Next Steps.',
-  evidence_quality: 'Decoded HTML engineering payload, raw log records, source file row index, and timestamp validation.',
-  main_event: 'Chronological incident flow with glowing directional arrows (➔) mapping First Incident to Next Incident.',
-  free_flow: 'Touch-interactive spring physics graph mapping events across nodes.',
-  explorer: 'Engineering payload evidence, source file links, and data export.'
+  evidence_quality: 'Decoded HTML engineering payload, raw log records, source file row index, and timestamp validation.'
 };
 
 function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () => void }) {
@@ -718,39 +707,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             />
           )}
 
-          {/* CAUSAL INCIDENT FLOW WITH ARROWS */}
-          {currentView === 'main_event' && (
-            <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <MainEventMapper rootCauseData={dataset.root_cause_analysis} records={filteredRecords} />
-            </div>
-          )}
 
-          {/* INTERACTIVE FREE-FLOW GRAPH */}
-          {currentView === 'free_flow' && (
-            <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
-              <InteractiveFreeFlowGraph records={filteredRecords} rootCauseData={dataset.root_cause_analysis} />
-            </div>
-          )}
-
-          {/* VIEW 8: UNIFIED LOG EXPLORER & LEVEL 4 EVIDENCE (CHANGE 7) */}
-          {currentView === 'explorer' && (
-            <section className="explorer-section">
-              <div className="result-count">{filteredRecords.length.toLocaleString()} matching records (0 skipped / 100% importer coverage)</div>
-              <EventTable rows={filteredRecords.slice(page * 20, page * 20 + 20)} onSelect={setSelectedRecord} />
-              
-              <div className="pagination">
-                <span>Page {page + 1} of {totalPages}</span>
-                <div>
-                  <Button variant="outline" size="icon" aria-label="Previous page" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-                    <ChevronLeft size={16} />
-                  </Button>
-                  <Button variant="outline" size="icon" aria-label="Next page" disabled={page + 1 >= totalPages} onClick={() => setPage(p => p + 1)}>
-                    <ChevronRight size={16} />
-                  </Button>
-                </div>
-              </div>
-            </section>
-          )}
 
           <footer className="page-footer">
             <span><Plane size={13} />FlightStory AI <span className="footer-separator">/</span> Explainable AI investigation platform</span>
