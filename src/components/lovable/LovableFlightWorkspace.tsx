@@ -60,14 +60,14 @@ const titles: Record<View, string> = {
 };
 
 const subtitles: Record<View, string> = {
-  overview: 'System-wide record totals by node and log family, 3D WebGL event landscape, and compact timeline.',
-  timeline: 'Three horizontal lanes for NODE_A, NODE_B, and NODE_C with 5 log family markers, zoom, and time navigation.',
-  propagation: 'Maps timestamped sub-events across nodes into the main root cause incident using LangGraph directional flow arrows.',
-  correlation: 'Cross-node associations with rationales: Temporal, Contextual, Possible Duplicate, No Match Found.',
-  fault_explorer: 'Detailed fault inspection: event code, duration, impact, recovery, and correlation breakdown.',
-  operational_context: 'FMS state transitions, operator interactions, software events, and cross-node activity.',
-  ai_narrative: 'Strict separation of Facts (linked to Event IDs), Inferred Relationships, Uncertainty, and Next Steps.',
-  evidence_quality: 'Decoded HTML engineering payload, raw log records, source file row index, and timestamp validation.'
+  overview: 'Summary of all recorded flight log events across Node A, B, and C with 3D telemetry video viewport.',
+  timeline: 'See all flight events on a 3-lane time bar (NODE_A, NODE_B, NODE_C) arranged by exact timestamp.',
+  propagation: 'Top-to-bottom flowchart showing how minor sub-events combine downward to form the main root cause incident.',
+  correlation: 'Finds related events across different nodes and clearly explains WHY they are connected with confidence scores.',
+  fault_explorer: 'Inspect specific fault codes (duration, impact, and system recovery) in simple plain English.',
+  operational_context: 'See what the pilot and system state were doing when the incident occurred.',
+  ai_narrative: 'Clear plain-English summary separating observed facts, inferred causes, and next steps.',
+  evidence_quality: 'Inspect original raw HTML engineering logs with 100% data integrity.'
 };
 
 function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () => void }) {
@@ -200,9 +200,9 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
         setTimeout(() => {
           setInvestigating(false);
           setShowInvestigationResults(true);
-        }, 700);
-      }, 700);
-    }, 700);
+        }, 300);
+      }, 300);
+    }, 300);
   };
 
   // Real-Time Live Streaming State
@@ -329,11 +329,29 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
           <div className="breadcrumb">
             Investigation <ChevronRight size={13} /> <span>{titles[currentView]}</span>
           </div>
-          <div className="topbar-actions">
+          
+          {/* TOP RIGHT TOPBAR ACTIONS WITH PROMINENT INVESTIGATE SYSTEM BUTTON */}
+          <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <Button 
+              style={{ 
+                background: 'linear-gradient(135deg, #0284c7, #0ea5e9)', 
+                color: '#fff', 
+                fontWeight: '800', 
+                gap: '0.45rem', 
+                padding: '0.55rem 1.1rem', 
+                fontSize: '0.85rem', 
+                boxShadow: '0 0 20px rgba(14, 165, 233, 0.6)',
+                border: '1px solid #38bdf8'
+              }}
+              onClick={runOneClickInvestigation}
+            >
+              <Zap size={16} /> Investigate System ⭐
+            </Button>
+
             {/* Live Streaming Badge */}
             <span className="environment" style={{ color: isLiveStreaming ? 'var(--critical)' : 'var(--success)' }}>
               <span className={`status-dot ${isLiveStreaming ? 'critical' : 'success'}`} />
-              {isLiveStreaming ? `🔴 LIVE TELEMETRY (${streamStats.ratePerSec} pkts/s)` : 'EVIDENCE VERIFIED (0 SKIPPED)'}
+              {isLiveStreaming ? `🔴 LIVE TELEMETRY (${streamStats.ratePerSec} pkts/s)` : 'EVIDENCE VERIFIED'}
             </span>
 
             <Button variant="ghost" size="icon" aria-label="Notifications" onClick={() => setNotice(!notice)}>

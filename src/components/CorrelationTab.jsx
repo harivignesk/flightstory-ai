@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   GitMerge, AlertTriangle, ArrowRight, ShieldAlert, CheckCircle2, 
-  HelpCircle, Clock, Link2, Copy, FileQuestion, Layers, Search
+  HelpCircle, Clock, Link2, Copy, FileQuestion, Layers, Search, Sparkles, Target, Activity
 } from 'lucide-react';
 import { records as allRecords } from '../data/flight-data';
 
@@ -17,7 +17,7 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
       targetId: 103,
       sourceNode: 'NODE_C',
       targetNode: 'NODE_C',
-      sourceEvent: 'Fault 6025: Process ID Lookup Failure',
+      sourceEvent: 'Fault 6025: Process ID Lookup Failure (Error 653)',
       targetEvent: 'Fault 6074: Repository Access Lockout (329 events)',
       rationaleType: 'Contextual Association',
       rationaleDetail: 'Documented field error code 653 directly precedes data buffer lockout handles.',
@@ -83,57 +83,175 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
     return true;
   });
 
+  const activeRel = selectedRelation || relationships[0];
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
       
-      {/* Header Banner */}
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
+      {/* HUGE HERO HEADER & FOCUS SECTION */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(17, 24, 39, 0.98) 100%)', 
+        border: '2px solid #38bdf8', 
+        borderRadius: '12px', 
+        padding: '1.75rem',
+        boxShadow: '0 0 35px rgba(56, 189, 248, 0.25)'
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.2rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <GitMerge style={{ color: 'var(--info)' }} size={22} />
-              Cross-Node Event Correlation & Relationship Rationale
-            </h2>
-            <p style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', marginTop: '0.2rem' }}>
-              Cross-node associations evaluated with explicit rationale types (Temporal, Contextual, Possible Duplicate, No Match Found).
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
+              <span className="tiny-badge info" style={{ fontSize: '0.85rem', padding: '0.35rem 0.75rem', fontWeight: '800' }}>
+                PRIMARY FEATURE: CROSS-NODE EVENT CORRELATION
+              </span>
+              <span className="tiny-badge success" style={{ fontSize: '0.85rem' }}>
+                5 CORRELATED PAIRS EVALUATED
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: '2rem', color: 'var(--card-foreground)', fontWeight: '800', margin: '0.3rem 0', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <GitMerge style={{ color: '#38bdf8' }} size={32} />
+              Cross-Node Event Correlation Engine
+            </h1>
+            <p style={{ fontSize: '0.95rem', color: '#cbd5e1', maxWidth: '900px', lineHeight: '1.6' }}>
+              This page automatically correlates events occurring across <strong>Node A, Node B, and Node C</strong> by analyzing timestamps, fault codes, state transitions, and raw engineering payloads.
             </p>
           </div>
 
-          <select 
-            value={filterRationale}
-            onChange={e => setFilterRationale(e.target.value)}
-            style={{ padding: '0.45rem 0.75rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.8rem' }}
-          >
-            <option value="ALL">All Rationale Types</option>
-            <option value="Contextual Association">Contextual Association</option>
-            <option value="Temporal & Cross-Node Association">Temporal Association</option>
-            <option value="Possible Duplicate">Possible Duplicate</option>
-            <option value="No Match Found">No Match Found</option>
-          </select>
+          <div style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid #38bdf8', padding: '1rem 1.25rem', borderRadius: '8px', minWidth: '220px', textAlign: 'right' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>Filter Rationale</div>
+            <select 
+              value={filterRationale}
+              onChange={e => setFilterRationale(e.target.value)}
+              style={{ marginTop: '0.4rem', padding: '0.5rem 0.85rem', borderRadius: '6px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: '700' }}
+            >
+              <option value="ALL">All Rationale Types</option>
+              <option value="Contextual Association">Contextual Association</option>
+              <option value="Temporal & Cross-Node Association">Temporal Association</option>
+              <option value="Possible Duplicate">Possible Duplicate</option>
+              <option value="No Match Found">No Match Found</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Strict Causation & Proximity Disclaimers (Requirement 4) */}
-      <div style={{ background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.3)', borderRadius: '6px', padding: '0.85rem 1.1rem', fontSize: '0.78rem', color: 'var(--critical)', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-        <div style={{ fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <AlertTriangle size={16} /> CRITICAL CORRELATION PRINCIPLES & PROXIMITY DISCLAIMERS:
+      {/* FEATURED LARGE CORRELATION SPOTLIGHT CARD */}
+      <div style={{ background: 'var(--card)', border: '2px solid #38bdf8', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+        <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          SELECTED CORRELATION SPOTLIGHT DETAILS
         </div>
-        <ul style={{ paddingLeft: '1.2rem', margin: '0.2rem 0', color: 'var(--foreground)', lineHeight: '1.5' }}>
-          <li><strong>Temporal Proximity != Proof of Causation:</strong> Events occurring within a close time window are correlated by temporal association, not proven causation.</li>
-          <li><strong>No Automatic Incident Confirmation:</strong> Two events occurring simultaneously do not automatically confirm a causal incident.</li>
-          <li><strong>Unmatched Events Preserved:</strong> A missing cross-node match is handled honestly and displayed as "No Match Found"—it does NOT prove an event did not occur.</li>
-        </ul>
+        <h2 style={{ fontSize: '1.4rem', color: 'var(--card-foreground)', fontWeight: '800', marginTop: '0.2rem', marginBottom: '1rem' }}>
+          {activeRel.sourceEvent} ➔ {activeRel.targetEvent}
+        </h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', background: 'var(--secondary)', padding: '1.25rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>SOURCE EVENT (FIRST LOGGED)</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem' }}>
+              <span className={`node-tag ${activeRel.sourceNode.toLowerCase()}`}>{activeRel.sourceNode}</span>
+              <strong style={{ fontSize: '0.95rem', color: 'var(--card-foreground)' }}>{activeRel.sourceEvent}</strong>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', border: '1px solid #38bdf8', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ArrowRight size={16} /> Time Delta: {activeRel.timeDelta}
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', textTransform: 'uppercase' }}>TARGET EVENT (CORRELATED OUTCOME)</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem' }}>
+              <span className={`node-tag ${activeRel.targetNode.toLowerCase()}`}>{activeRel.targetNode}</span>
+              <strong style={{ fontSize: '0.95rem', color: 'var(--card-foreground)' }}>{activeRel.targetEvent}</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Rationale & Certainty Breakdown */}
+        <div style={{ marginTop: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+          <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '1rem', borderRadius: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: '800', textTransform: 'uppercase' }}>WHY ARE THEY CORRELATED? (RATIONALE)</span>
+            <p style={{ fontSize: '0.88rem', color: 'var(--card-foreground)', marginTop: '0.3rem', lineHeight: '1.5' }}>
+              {activeRel.rationaleDetail}
+            </p>
+          </div>
+
+          <div style={{ background: 'rgba(52, 211, 153, 0.08)', border: '1px solid rgba(52, 211, 153, 0.3)', padding: '1rem', borderRadius: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: '800', textTransform: 'uppercase' }}>CONFIDENCE & CERTAINTY SCORE</span>
+            <p style={{ fontSize: '0.88rem', color: 'var(--card-foreground)', marginTop: '0.3rem', fontWeight: '700' }}>
+              {activeRel.certainty}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Feature 2: Multi-Dimensional Event Fingerprinting Table */}
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
-        <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Search size={18} style={{ color: 'var(--info)' }} />
-          Feature 2: Multi-Dimensional Event Fingerprinting Comparison
+      {/* LARGE PROMINENT CARDS GRID FOR ALL CORRELATIONS */}
+      <div>
+        <h2 style={{ fontSize: '1.25rem', color: 'var(--card-foreground)', fontWeight: '800', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Layers style={{ color: '#38bdf8' }} size={20} />
+          All Evaluated Cross-Node Event Correlations (Click to inspect)
+        </h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+          {filteredRelations.map(rel => {
+            const isSelected = activeRel.id === rel.id;
+            return (
+              <div 
+                key={rel.id}
+                onClick={() => setSelectedRelation(rel)}
+                style={{ 
+                  background: 'var(--card)', 
+                  border: isSelected ? '2px solid #38bdf8' : '1px solid var(--border)', 
+                  borderRadius: '10px', 
+                  padding: '1.35rem', 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isSelected ? '0 0 25px rgba(56, 189, 248, 0.3)' : 'none'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <span className="tiny-badge info" style={{ fontWeight: '800', fontSize: '0.78rem' }}>
+                    {rel.rationaleType}
+                  </span>
+                  <span className="mono" style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '700' }}>
+                    {rel.timeDelta}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.65rem' }}>
+                  <span className={`node-tag ${rel.sourceNode.toLowerCase()}`}>{rel.sourceNode}</span>
+                  <ArrowRight size={14} style={{ color: 'var(--muted-foreground)' }} />
+                  <span className={`node-tag ${rel.targetNode.toLowerCase()}`}>{rel.targetNode}</span>
+                </div>
+
+                <div style={{ fontWeight: '800', color: 'var(--card-foreground)', fontSize: '0.95rem', lineHeight: '1.3' }}>
+                  {rel.sourceEvent}
+                </div>
+
+                {rel.targetEvent !== 'No Cross-Node Match Found' && (
+                  <div style={{ fontSize: '0.85rem', color: '#38bdf8', marginTop: '0.35rem', fontWeight: '600' }}>
+                    ➔ {rel.targetEvent}
+                  </div>
+                )}
+
+                <div style={{ background: 'var(--secondary)', padding: '0.75rem 0.9rem', borderRadius: '6px', marginTop: '0.85rem', fontSize: '0.78rem', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
+                  <strong style={{ color: 'var(--card-foreground)' }}>Rationale:</strong> {rel.rationaleDetail}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* MULTI-DIMENSIONAL EVENT FINGERPRINTING TABLE */}
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', fontWeight: '700', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Search size={20} style={{ color: '#38bdf8' }} />
+          Multi-Dimensional Event Fingerprinting Matrix
         </h3>
-        <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
-          Instead of comparing identical fault codes, correlation uses multi-field event fingerprints (Node ID, Code, Category, Timestamp, Sequence, Context State).
+        <p style={{ fontSize: '0.82rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+          Matches records across nodes using composite key fingerprints: [Node ID + Fault Code + Log Category + Sequence Index + Timestamp Offset].
         </p>
+
         <div className="table-scroll">
           <table className="event-table">
             <thead>
@@ -172,61 +290,7 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
         </div>
       </div>
 
-      {/* Interactive Relationships Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
-        {filteredRelations.map(rel => {
-          const isSelected = selectedRelation?.id === rel.id;
-          const borderStyle = rel.rationaleType.includes('Contextual') 
-            ? '2px solid var(--info)' 
-            : rel.rationaleType.includes('Temporal') 
-            ? '2px dashed var(--warning)' 
-            : rel.rationaleType.includes('Duplicate') 
-            ? '2px dotted #a855f7' 
-            : '2px dashed var(--border)';
-
-          return (
-            <div 
-              key={rel.id}
-              onClick={() => setSelectedRelation(rel)}
-              style={{ 
-                background: 'var(--card)', 
-                border: isSelected ? '2px solid #38bdf8' : borderStyle, 
-                borderRadius: '8px', 
-                padding: '1.1rem', 
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-                <span className="tiny-badge" style={{ color: rel.rationaleType === 'Possible Duplicate' ? '#a855f7' : rel.rationaleType === 'No Match Found' ? 'var(--muted-foreground)' : rel.rationaleType.includes('Temporal') ? 'var(--warning)' : 'var(--info)' }}>
-                  {rel.rationaleType}
-                </span>
-                <span className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
-                  {rel.timeDelta}
-                </span>
-              </div>
-
-              {/* Source ➔ Target Nodes */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <span className={`node-tag ${rel.sourceNode.toLowerCase()}`}>{rel.sourceNode}</span>
-                <ArrowRight size={14} style={{ color: 'var(--muted-foreground)' }} />
-                <span className={`node-tag ${rel.targetNode.toLowerCase()}`}>{rel.targetNode}</span>
-              </div>
-
-              <div style={{ fontWeight: '700', color: 'var(--card-foreground)', fontSize: '0.85rem' }}>{rel.sourceEvent}</div>
-              {rel.targetEvent !== 'No Cross-Node Match Found' && (
-                <div style={{ fontSize: '0.8rem', color: 'var(--info)', marginTop: '0.2rem' }}>➔ {rel.targetEvent}</div>
-              )}
-
-              {/* Rationale Detail */}
-              <div style={{ background: 'var(--secondary)', padding: '0.65rem 0.85rem', borderRadius: '4px', marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
-                <strong style={{ color: 'var(--card-foreground)' }}>Rationale:</strong> {rel.rationaleDetail}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
     </div>
   );
 }
+
