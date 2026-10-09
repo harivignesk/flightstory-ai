@@ -6,8 +6,8 @@ import {
 import { records as allRecords } from '../data/flight-data';
 
 export default function CorrelationTab({ records = allRecords, onSelectRecord }) {
-  const [selectedRelation, setSelectedRelation] = useState<any>(null);
-  const [filterRationale, setFilterRationale] = useState<string>('ALL');
+  const [selectedRelation, setSelectedRelation] = useState(null);
+  const [filterRationale, setFilterRationale] = useState('ALL');
 
   // Defined Correlation Relationships with Explicit Rationales
   const relationships = [

@@ -14,12 +14,12 @@ import {
 } from '../data/flight-data';
 
 export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent, selectedEventId }) {
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [timeRange, setTimeRange] = useState<[number, number]>([startTime, endTime]);
-  const [selectedFamily, setSelectedFamily] = useState<string>('ALL');
-  const [selectedSeverity, setSelectedSeverity] = useState<string>('ALL');
-  const [hoveredRecord, setHoveredRecord] = useState<FlightRecord | null>(null);
-  const [expandedClusterTime, setExpandedClusterTime] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [timeRange, setTimeRange] = useState([startTime, endTime]);
+  const [selectedFamily, setSelectedFamily] = useState('ALL');
+  const [selectedSeverity, setSelectedSeverity] = useState('ALL');
+  const [hoveredRecord, setHoveredRecord] = useState(null);
+  const [expandedClusterTime, setExpandedClusterTime] = useState(null);
 
   // Categories list
   const categories = ['Aircraft State', 'Fault History', 'Operator Interaction', 'Software Events', 'State Transition'];
