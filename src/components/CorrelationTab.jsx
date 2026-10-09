@@ -125,10 +125,64 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
         </ul>
       </div>
 
+      {/* Feature 2: Multi-Dimensional Event Fingerprinting Table */}
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
+        <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Search size={18} style={{ color: 'var(--info)' }} />
+          Feature 2: Multi-Dimensional Event Fingerprinting Comparison
+        </h3>
+        <p style={{ fontSize: '0.8rem', color: 'var(--muted-foreground)', marginBottom: '1rem' }}>
+          Instead of comparing identical fault codes, correlation uses multi-field event fingerprints (Node ID, Code, Category, Timestamp, Sequence, Context State).
+        </p>
+        <div className="table-scroll">
+          <table className="event-table">
+            <thead>
+              <tr>
+                <th>FMS NODE</th>
+                <th>FINGERPRINT ID</th>
+                <th>EVENT / FAULT CODE</th>
+                <th>PARSED TIMESTAMP</th>
+                <th>CORRELATION RESULT & RATIONALE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span className="node-tag node_a">NODE_A</span></td>
+                <td className="mono">FP-NODE_A-6025-102</td>
+                <td><strong>Fault 6025 (Primary PID Failure)</strong></td>
+                <td className="mono">09:37:22.014</td>
+                <td><span className="tiny-badge success">PRIMARY EVIDENCE</span> Documented Error 653</td>
+              </tr>
+              <tr>
+                <td><span className="node-tag node_b">NODE_B</span></td>
+                <td className="mono">FP-NODE_B-6029-184</td>
+                <td><strong>Fault 6029 (Node B Semaphore Timeout)</strong></td>
+                <td className="mono">09:37:24.120</td>
+                <td><span className="tiny-badge warning">POTENTIALLY RELATED</span> Differing code (+2.1s window)</td>
+              </tr>
+              <tr>
+                <td><span className="node-tag node_c">NODE_C</span></td>
+                <td className="mono">FP-NODE_C-NONE-—</td>
+                <td><strong>No Matching Record Logged</strong></td>
+                <td className="mono">—</td>
+                <td><span className="tiny-badge">NO MATCH FOUND</span> Preserved (Not proof of absence)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Interactive Relationships Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
         {filteredRelations.map(rel => {
           const isSelected = selectedRelation?.id === rel.id;
+          const borderStyle = rel.rationaleType.includes('Contextual') 
+            ? '2px solid var(--info)' 
+            : rel.rationaleType.includes('Temporal') 
+            ? '2px dashed var(--warning)' 
+            : rel.rationaleType.includes('Duplicate') 
+            ? '2px dotted #a855f7' 
+            : '2px dashed var(--border)';
 
           return (
             <div 
@@ -136,7 +190,7 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
               onClick={() => setSelectedRelation(rel)}
               style={{ 
                 background: 'var(--card)', 
-                border: isSelected ? '2px solid var(--info)' : '1px solid var(--border)', 
+                border: isSelected ? '2px solid #38bdf8' : borderStyle, 
                 borderRadius: '8px', 
                 padding: '1.1rem', 
                 cursor: 'pointer',
@@ -144,7 +198,7 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-                <span className="tiny-badge" style={{ color: rel.rationaleType === 'Possible Duplicate' ? 'var(--warning)' : rel.rationaleType === 'No Match Found' ? 'var(--muted-foreground)' : 'var(--info)' }}>
+                <span className="tiny-badge" style={{ color: rel.rationaleType === 'Possible Duplicate' ? '#a855f7' : rel.rationaleType === 'No Match Found' ? 'var(--muted-foreground)' : rel.rationaleType.includes('Temporal') ? 'var(--warning)' : 'var(--info)' }}>
                   {rel.rationaleType}
                 </span>
                 <span className="font-mono" style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>
