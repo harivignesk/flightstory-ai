@@ -26,7 +26,7 @@ export default function DetailModal({ record, onClose }) {
               <span className="badge badge-info">{record.log_family}</span>
               <span className="badge badge-critical">#{record.id}</span>
             </div>
-            <h3 style={{ fontSize: '1.1rem', color: '#fff', marginTop: '0.4rem' }}>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', marginTop: '0.4rem' }}>
               Log Record Inspection Drawer
             </h3>
           </div>

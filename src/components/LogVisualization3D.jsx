@@ -231,7 +231,7 @@ export default function LogVisualization3D({ records, rootCauseData }) {
       <div className="glass-card" style={{ padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.15rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.15rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Box className="w-5 h-5 text-cyan-400" /> Interactive 3D Log Event Mapping Space
             </h3>
             <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '0.2rem' }}>
@@ -287,7 +287,7 @@ export default function LogVisualization3D({ records, rootCauseData }) {
 
         {/* 3D Legend overlay */}
         <div style={{ position: 'absolute', top: '15px', left: '15px', background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#fff', marginBottom: '0.4rem', textTransform: 'uppercase' }}>3D Node Plane Legend</div>
+          <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--card-foreground)', marginBottom: '0.4rem', textTransform: 'uppercase' }}>3D Node Plane Legend</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.75rem' }}>
             <span style={{ color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#38bdf8', display: 'inline-block' }}></span> NODE_A (Front Z-Plane)
@@ -320,7 +320,7 @@ export default function LogVisualization3D({ records, rootCauseData }) {
               {selectedEvent.timestamp_display}
             </div>
 
-            <div style={{ fontSize: '0.95rem', fontWeight: '700', color: '#fff', marginTop: '0.35rem' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--card-foreground)', marginTop: '0.35rem' }}>
               {selectedEvent.fault_code ? `Fault Code ${selectedEvent.fault_code}: ${selectedEvent.fault_name || ''}` : selectedEvent.log_family}
             </div>
 

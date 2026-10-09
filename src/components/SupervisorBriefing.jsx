@@ -43,7 +43,7 @@ export default function SupervisorBriefing({ rootCauseData, records }) {
                 REDUNDANCY RESTORED
               </span>
             </div>
-            <h2 style={{ fontSize: '1.5rem', color: '#fff', marginTop: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.5rem', color: 'var(--card-foreground)', marginTop: '0.5rem' }}>
               Executive Supervisor Briefing: Honeywell FMS Incident Investigation
             </h2>
             <p style={{ color: '#9ca3af', fontSize: '0.88rem', marginTop: '0.25rem' }}>
@@ -73,7 +73,7 @@ export default function SupervisorBriefing({ rootCauseData, records }) {
         
         {/* Key Incident Brief */}
         <div className="glass-card" style={{ gridColumn: 'span 7', padding: '1.35rem' }}>
-          <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Target className="w-5 h-5 text-rose-400" /> Key Incident Briefing (What Occurred)
           </h3>
 
@@ -119,31 +119,31 @@ export default function SupervisorBriefing({ rootCauseData, records }) {
         {/* Supervisory Directives */}
         <div className="glass-card" style={{ gridColumn: 'span 5', padding: '1.35rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <CheckCircle2 className="w-5 h-5 text-emerald-400" /> Actionable Supervisory Directives
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
-                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#0284c7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem', marginTop: '2px', flexShrink: 0 }}>1</div>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#0284c7', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem', marginTop: '2px', flexShrink: 0 }}>1</div>
                 <div>
-                  <strong style={{ color: '#fff', fontSize: '0.85rem' }}>Software Patch Deployment (FMS v6.4.2)</strong>
+                  <strong style={{ color: 'var(--card-foreground)', fontSize: '0.85rem' }}>Software Patch Deployment (FMS v6.4.2)</strong>
                   <p style={{ fontSize: '0.78rem', color: '#9ca3af', marginTop: '0.15rem' }}>Deploy patch to resolve process ID lookup error 653 during database refresh locks.</p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
-                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#6366f1', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem', marginTop: '2px', flexShrink: 0 }}>2</div>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#6366f1', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem', marginTop: '2px', flexShrink: 0 }}>2</div>
                 <div>
-                  <strong style={{ color: '#fff', fontSize: '0.85rem' }}>IPC Semaphore Timeout Tuning</strong>
+                  <strong style={{ color: 'var(--card-foreground)', fontSize: '0.85rem' }}>IPC Semaphore Timeout Tuning</strong>
                   <p style={{ fontSize: '0.78rem', color: '#9ca3af', marginTop: '0.15rem' }}>Increase IPC semaphore timeout threshold from 50ms to 250ms on NODE_C.</p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
-                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem', marginTop: '2px', flexShrink: 0 }}>3</div>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#10b981', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '0.75rem', marginTop: '2px', flexShrink: 0 }}>3</div>
                 <div>
-                  <strong style={{ color: '#fff', fontSize: '0.85rem' }}>Real-time Telemetry Health Monitor</strong>
+                  <strong style={{ color: 'var(--card-foreground)', fontSize: '0.85rem' }}>Real-time Telemetry Health Monitor</strong>
                   <p style={{ fontSize: '0.78rem', color: '#9ca3af', marginTop: '0.15rem' }}>Enable automated alerts on Fault Code 6025 triggers across all 3 nodes.</p>
                 </div>
               </div>

@@ -15,7 +15,7 @@ export default function FaultTab({ records }) {
       <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #f87171' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontSize: '1.1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <AlertOctagon className="w-5 h-5 text-rose-400" /> Fault Repository Public FMS Artifact Deep-Dive
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: '0.25rem' }}>
@@ -72,7 +72,7 @@ export default function FaultTab({ records }) {
 
       {/* Detailed Fault Table */}
       <div className="glass-card" style={{ padding: '1.25rem' }}>
-        <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <h4 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Terminal className="w-4 h-4 text-cyan-400" /> Decoded Fault Records Stream (Sample View)
         </h4>
 

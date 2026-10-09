@@ -90,7 +90,7 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <h2 style={{ fontSize: '1.2rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <GitMerge style={{ color: 'var(--info)' }} size={22} />
               Cross-Node Event Correlation & Relationship Rationale
             </h2>
@@ -102,7 +102,7 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
           <select 
             value={filterRationale}
             onChange={e => setFilterRationale(e.target.value)}
-            style={{ padding: '0.45rem 0.75rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.8rem' }}
+            style={{ padding: '0.45rem 0.75rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.8rem' }}
           >
             <option value="ALL">All Rationale Types</option>
             <option value="Contextual Association">Contextual Association</option>
@@ -159,14 +159,14 @@ export default function CorrelationTab({ records = allRecords, onSelectRecord })
                 <span className={`node-tag ${rel.targetNode.toLowerCase()}`}>{rel.targetNode}</span>
               </div>
 
-              <div style={{ fontWeight: '700', color: '#fff', fontSize: '0.85rem' }}>{rel.sourceEvent}</div>
+              <div style={{ fontWeight: '700', color: 'var(--card-foreground)', fontSize: '0.85rem' }}>{rel.sourceEvent}</div>
               {rel.targetEvent !== 'No Cross-Node Match Found' && (
                 <div style={{ fontSize: '0.8rem', color: 'var(--info)', marginTop: '0.2rem' }}>➔ {rel.targetEvent}</div>
               )}
 
               {/* Rationale Detail */}
               <div style={{ background: 'var(--secondary)', padding: '0.65rem 0.85rem', borderRadius: '4px', marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--muted-foreground)', lineHeight: '1.4' }}>
-                <strong style={{ color: '#fff' }}>Rationale:</strong> {rel.rationaleDetail}
+                <strong style={{ color: 'var(--card-foreground)' }}>Rationale:</strong> {rel.rationaleDetail}
               </div>
             </div>
           );

@@ -97,7 +97,7 @@ export default function OverviewTab({ stats, records }) {
       {/* Node Distribution */}
       <div className="glass-card" style={{ gridColumn: 'span 4', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Server className="w-5 h-5 text-cyan-400" /> Multi-Node Load Distribution
           </h3>
           <span className="badge badge-info">3 Nodes</span>
@@ -113,7 +113,7 @@ export default function OverviewTab({ stats, records }) {
       {/* Log Family Distribution */}
       <div className="glass-card" style={{ gridColumn: 'span 8', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Layers className="w-5 h-5 text-indigo-400" /> Log Records by Family Architecture
           </h3>
           <span className="badge badge-node-a">5 Log Families</span>
@@ -126,7 +126,7 @@ export default function OverviewTab({ stats, records }) {
       {/* Severity Split */}
       <div className="glass-card" style={{ gridColumn: 'span 4', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <AlertTriangle className="w-5 h-5 text-rose-400" /> Event Severity Breakdown
           </h3>
           <span className="badge badge-critical">1,577 Critical</span>
@@ -139,7 +139,7 @@ export default function OverviewTab({ stats, records }) {
       {/* System Summary Card */}
       <div className="glass-card" style={{ gridColumn: 'span 8', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <h3 style={{ fontSize: '1.1rem', color: '#fff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Clock className="w-5 h-5 text-emerald-400" /> FMS Execution Timeline Analysis (June 18, 2032)
           </h3>
           <p style={{ fontSize: '0.85rem', color: '#9ca3af', lineHeight: '1.6' }}>

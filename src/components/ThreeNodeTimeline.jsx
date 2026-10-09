@@ -92,7 +92,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <h2 style={{ fontSize: '1.2rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <Clock style={{ color: 'var(--info)' }} size={22} />
               Three-Node Synchronized Incident Timeline
             </h2>
@@ -131,7 +131,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
             <select 
               value={selectedSeverity} 
               onChange={e => setSelectedSeverity(e.target.value)}
-              style={{ padding: '0.45rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.8rem' }}
+              style={{ padding: '0.45rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.8rem' }}
             >
               <option value="ALL">All Severities</option>
               <option value="INFO">INFO Only</option>
@@ -143,7 +143,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
             <select 
               value={selectedFamily} 
               onChange={e => setSelectedFamily(e.target.value)}
-              style={{ padding: '0.45rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.8rem' }}
+              style={{ padding: '0.45rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.8rem' }}
             >
               <option value="ALL">All 5 Log Families</option>
               {categories.map(cat => (
@@ -267,7 +267,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#fff',
+                          color: 'var(--card-foreground)',
                           fontSize: '0.65rem',
                           fontWeight: '800'
                         }}>
@@ -296,7 +296,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
             borderRadius: '6px',
             boxShadow: '0 10px 30px rgba(0,0,0,0.9)',
             fontSize: '0.8rem',
-            color: '#fff',
+            color: 'var(--card-foreground)',
             pointerEvents: 'none',
             maxWidth: '520px',
             width: '100%'
@@ -332,7 +332,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
       {expandedClusterTime && (
         <div style={{ background: 'var(--card)', border: '1px solid var(--info)', borderRadius: '8px', padding: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <h4 style={{ fontSize: '0.95rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h4 style={{ fontSize: '0.95rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Layers size={16} style={{ color: 'var(--info)' }} />
               Cluster Expansion: Preserved Simultaneous Events
             </h4>
@@ -354,7 +354,7 @@ export default function ThreeNodeTimeline({ records = allRecords, onSelectEvent,
               >
                 <div>
                   <span className={`node-tag ${rec.node.toLowerCase()}`} style={{ marginRight: '0.5rem' }}>{rec.node}</span>
-                  <span style={{ fontWeight: '600', color: '#fff', fontSize: '0.8rem' }}>Event #{rec.id}: {rec.fault_name || rec.log_family}</span>
+                  <span style={{ fontWeight: '600', color: 'var(--card-foreground)', fontSize: '0.8rem' }}>Event #{rec.id}: {rec.fault_name || rec.log_family}</span>
                   <div style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>{rec.message}</div>
                 </div>
                 <ChevronRight size={16} style={{ color: 'var(--info)' }} />

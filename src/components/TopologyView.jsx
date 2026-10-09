@@ -15,7 +15,7 @@ export default function TopologyView({ records }) {
       <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #a855f7' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontSize: '1.15rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.15rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Server className="w-5 h-5 text-purple-400" /> Honeywell Redundant 3-Node FMS Architecture Topology
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: '0.25rem' }}>
@@ -42,7 +42,7 @@ export default function TopologyView({ records }) {
             </span>
           </div>
 
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#fff', margin: '0.5rem 0', fontFamily: 'Outfit' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--card-foreground)', margin: '0.5rem 0', fontFamily: 'Outfit' }}>
             2,199 Records
           </div>
           <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '1rem' }}>
@@ -76,7 +76,7 @@ export default function TopologyView({ records }) {
             </span>
           </div>
 
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#fff', margin: '0.5rem 0', fontFamily: 'Outfit' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--card-foreground)', margin: '0.5rem 0', fontFamily: 'Outfit' }}>
             1,177 Records
           </div>
           <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '1rem' }}>
@@ -110,7 +110,7 @@ export default function TopologyView({ records }) {
             </span>
           </div>
 
-          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#fff', margin: '0.5rem 0', fontFamily: 'Outfit' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--card-foreground)', margin: '0.5rem 0', fontFamily: 'Outfit' }}>
             1,881 Records
           </div>
           <div style={{ fontSize: '0.78rem', color: '#9ca3af', marginBottom: '1rem' }}>

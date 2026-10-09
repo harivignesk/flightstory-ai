@@ -328,7 +328,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             right: '30px',
             zIndex: 1000,
             background: 'rgba(248, 113, 113, 0.95)',
-            color: '#fff',
+            color: 'var(--card-foreground)',
             padding: '1rem 1.25rem',
             borderRadius: '8px',
             boxShadow: '0 10px 30px rgba(248, 113, 113, 0.5)',
@@ -365,7 +365,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <select 
               value={globalNode} 
               onChange={e => setGlobalNode(e.target.value)}
-              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.78rem' }}
             >
               <option value="ALL">All Nodes (A, B, C)</option>
               <option value="NODE_A">NODE_A (Master)</option>
@@ -377,7 +377,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <select 
               value={globalSeverity} 
               onChange={e => setGlobalSeverity(e.target.value)}
-              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.78rem' }}
             >
               <option value="ALL">All Severities</option>
               <option value="INFO">INFO Only</option>
@@ -389,7 +389,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <select 
               value={globalCategory} 
               onChange={e => setGlobalCategory(e.target.value)}
-              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.78rem' }}
             >
               <option value="ALL">All 5 Log Families</option>
               <option value="Aircraft State">Aircraft State</option>
@@ -403,7 +403,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             <select 
               value={globalFaultCode} 
               onChange={e => setGlobalFaultCode(e.target.value)}
-              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.78rem' }}
+              style={{ padding: '0.4rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.78rem' }}
             >
               <option value="ALL">All Fault Codes</option>
               <option value="6025">Fault 6025 (Primary PID Fail)</option>
@@ -483,7 +483,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
 
               {/* CHANGE 1: RECORD TOTALS BY LOG FAMILY BREAKDOWN GRID */}
               <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1rem', color: '#fff', marginBottom: '0.85rem' }}>Imported Record Breakdown by Log Family & Category</h3>
+                <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '0.85rem' }}>Imported Record Breakdown by Log Family & Category</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
                   {Object.entries(dynamicSummary.totalsByCategory).map(([catName, count]) => (
                     <div 
@@ -495,7 +495,7 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
                         <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: familyColors[catName] || 'var(--info)' }} />
                         {catName}
                       </div>
-                      <div style={{ fontSize: '1.5rem', color: '#fff', fontWeight: '700', margin: '0.2rem 0' }}>
+                      <div style={{ fontSize: '1.5rem', color: 'var(--card-foreground)', fontWeight: '700', margin: '0.2rem 0' }}>
                         {count.toLocaleString()}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--muted-foreground)' }}>

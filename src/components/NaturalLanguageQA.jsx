@@ -103,7 +103,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <h2 style={{ fontSize: '1.2rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <Sparkles style={{ color: 'var(--info)' }} size={22} />
               Explainable AI Incident Narrative & Natural-Language Q&A
             </h2>
@@ -122,7 +122,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
             key={idx} 
             onClick={() => handleSend(pq)}
             className="nav-item"
-            style={{ width: 'auto', padding: '0.45rem 0.85rem', fontSize: '0.78rem', background: 'var(--secondary)', color: '#fff' }}
+            style={{ width: 'auto', padding: '0.45rem 0.85rem', fontSize: '0.78rem', background: 'var(--secondary)', color: 'var(--card-foreground)' }}
           >
             <MessageSquare size={13} style={{ color: 'var(--info)' }} />
             {pq}
@@ -140,7 +140,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
               </div>
             ) : (
               <div style={{ background: 'var(--card)', border: '1px solid var(--border)', padding: '1.25rem', borderRadius: '12px', fontSize: '0.85rem' }}>
-                <div style={{ color: '#fff', fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ color: 'var(--card-foreground)', fontWeight: '700', fontSize: '0.95rem', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Cpu size={18} style={{ color: 'var(--info)' }} />
                   {m.text}
                 </div>
@@ -154,7 +154,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
                       <strong style={{ color: 'var(--success)', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <CheckCircle2 size={14} /> 1. OBSERVED FACTS (EVIDENCE-LINKED TO EVENT IDs):
                       </strong>
-                      <ul style={{ paddingLeft: '1.2rem', marginTop: '0.35rem', fontSize: '0.8rem', color: '#fff', lineHeight: '1.5' }}>
+                      <ul style={{ paddingLeft: '1.2rem', marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--card-foreground)', lineHeight: '1.5' }}>
                         {m.facts.map((f, idx) => <li key={idx}>{f}</li>)}
                       </ul>
                     </div>
@@ -166,7 +166,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
                       <strong style={{ color: 'var(--info)', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Sparkles size={14} /> 2. INFERRED / POSSIBLE RELATIONSHIPS (AI RATIONALE):
                       </strong>
-                      <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: '#fff', lineHeight: '1.5' }}>
+                      <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--card-foreground)', lineHeight: '1.5' }}>
                         {m.inference}
                       </p>
                     </div>
@@ -178,7 +178,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
                       <strong style={{ color: 'var(--warning)', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <HelpCircle size={14} /> 3. UNCERTAINTY (HYPOTHESIS LIMITATIONS):
                       </strong>
-                      <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: '#fff', lineHeight: '1.5' }}>
+                      <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--card-foreground)', lineHeight: '1.5' }}>
                         {m.uncertainty}
                       </p>
                     </div>
@@ -190,7 +190,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
                       <strong style={{ color: 'var(--critical)', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <FileQuestion size={14} /> 4. MISSING OR CONFLICTING EVIDENCE:
                       </strong>
-                      <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: '#fff', lineHeight: '1.5' }}>
+                      <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--card-foreground)', lineHeight: '1.5' }}>
                         {m.missingEvidence}
                       </p>
                     </div>
@@ -202,7 +202,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
                       <strong style={{ color: 'var(--node-b)', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <ListOrdered size={14} /> 5. SUGGESTED NEXT INVESTIGATIVE STEPS:
                       </strong>
-                      <ul style={{ paddingLeft: '1.2rem', marginTop: '0.35rem', fontSize: '0.8rem', color: '#fff', lineHeight: '1.5' }}>
+                      <ul style={{ paddingLeft: '1.2rem', marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--card-foreground)', lineHeight: '1.5' }}>
                         {m.nextSteps.map((step, idx) => <li key={idx}>{step}</li>)}
                       </ul>
                     </div>
@@ -223,7 +223,7 @@ export default function NaturalLanguageQA({ records = allRecords, rootCauseData 
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
-          style={{ flex: 1, padding: '0.75rem 1rem', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', color: '#fff', outline: 'none' }}
+          style={{ flex: 1, padding: '0.75rem 1rem', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--card-foreground)', outline: 'none' }}
         />
         <button onClick={() => handleSend()} className="btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: '600' }}>
           Generate Narrative

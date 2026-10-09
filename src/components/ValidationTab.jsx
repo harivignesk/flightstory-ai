@@ -26,7 +26,7 @@ export default function ValidationTab({ qualityStats }) {
       <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #34d399' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontSize: '1.1rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <ShieldCheck className="w-5 h-5 text-emerald-400" /> Stage 2: Data Normalization & Quality Report
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#9ca3af', marginTop: '0.25rem' }}>
@@ -68,7 +68,7 @@ export default function ValidationTab({ qualityStats }) {
 
       {/* Quality Report File Table */}
       <div className="glass-card" style={{ padding: '1.25rem' }}>
-        <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <h4 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <FileCheck className="w-4 h-4 text-cyan-400" /> Source File Ingestion Audit (file_quality_report)
         </h4>
 

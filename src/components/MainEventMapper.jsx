@@ -66,7 +66,7 @@ export default function MainEventMapper({ rootCauseData, records }) {
               </span>
             </div>
 
-            <h2 style={{ fontSize: '1.6rem', color: '#fff', marginTop: '0.65rem', marginBottom: '0.35rem' }}>
+            <h2 style={{ fontSize: '1.6rem', color: 'var(--card-foreground)', marginTop: '0.65rem', marginBottom: '0.35rem' }}>
               Fault Code {mainEvent.fault_code}: {mainEvent.title}
             </h2>
 
@@ -91,7 +91,7 @@ export default function MainEventMapper({ rootCauseData, records }) {
       <div className="glass-card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.15rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.15rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <GitMerge className="w-5 h-5 text-cyan-400" /> LangGraph Incident-to-Incident Causal Flow Diagram
             </h3>
             <p style={{ fontSize: '0.82rem', color: '#9ca3af', marginTop: '0.25rem' }}>
@@ -157,7 +157,7 @@ export default function MainEventMapper({ rootCauseData, records }) {
                     <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: isMain ? '#f87171' : '#9ca3af', fontWeight: '700' }}>
                       {s.phase}
                     </div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: '700', color: '#fff', marginTop: '0.25rem', lineHeight: '1.3' }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--card-foreground)', marginTop: '0.25rem', lineHeight: '1.3' }}>
                       {s.event_name}
                     </div>
 
@@ -210,7 +210,7 @@ export default function MainEventMapper({ rootCauseData, records }) {
         
         {/* Top Cascading Fault Codes */}
         <div className="glass-card" style={{ gridColumn: 'span 7', padding: '1.25rem' }}>
-          <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h4 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <AlertTriangle className="w-4 h-4 text-rose-400" /> Cascading Fault Frequencies Triggered by Main Event
           </h4>
 
@@ -251,7 +251,7 @@ export default function MainEventMapper({ rootCauseData, records }) {
         {/* Verification Summary Card */}
         <div className="glass-card" style={{ gridColumn: 'span 5', padding: '1.25rem', display: 'flex', flexDirection: 'column', justify: 'space-between' }}>
           <div>
-            <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h4 style={{ fontSize: '1rem', color: 'var(--card-foreground)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <ShieldAlert className="w-4 h-4 text-emerald-400" /> Problem Statement (PS) Satisfaction Checklist
             </h4>
             
@@ -281,7 +281,7 @@ export default function MainEventMapper({ rootCauseData, records }) {
 
           <div style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.3)', padding: '0.85rem', borderRadius: '8px', marginTop: '1rem' }}>
             <div style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: '700', textTransform: 'uppercase' }}>PS Verification Verdict</div>
-            <div style={{ fontSize: '0.85rem', color: '#fff', marginTop: '0.2rem' }}>
+            <div style={{ fontSize: '0.85rem', color: 'var(--card-foreground)', marginTop: '0.2rem' }}>
               All problem statement requirements & incident arrow flows successfully solved.
             </div>
           </div>

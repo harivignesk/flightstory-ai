@@ -287,7 +287,7 @@ export default function InteractiveFreeFlowGraph({ records, rootCauseData }) {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.2rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <h2 style={{ fontSize: '1.2rem', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <Cpu style={{ color: 'var(--info)' }} size={22} />
               Agentic AI Event Convergence & Causal Flow Engine
             </h2>
@@ -301,7 +301,7 @@ export default function InteractiveFreeFlowGraph({ records, rootCauseData }) {
             <button 
               onClick={() => setIsPlaying(!isPlaying)} 
               className="nav-item" 
-              style={{ width: 'auto', padding: '0.45rem 0.85rem', background: 'var(--secondary)', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{ width: 'auto', padding: '0.45rem 0.85rem', background: 'var(--secondary)', color: 'var(--card-foreground)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
             >
               {isPlaying ? <Pause size={15} /> : <Play size={15} />}
               {isPlaying ? 'Pause Flow' : 'Play Flow'}
@@ -318,7 +318,7 @@ export default function InteractiveFreeFlowGraph({ records, rootCauseData }) {
             <select 
               value={playbackSpeed} 
               onChange={e => setPlaybackSpeed(Number(e.target.value))}
-              style={{ padding: '0.45rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: '#fff', border: '1px solid var(--border)', fontSize: '0.8rem' }}
+              style={{ padding: '0.45rem 0.65rem', borderRadius: '4px', background: 'var(--secondary)', color: 'var(--card-foreground)', border: '1px solid var(--border)', fontSize: '0.8rem' }}
             >
               <option value={0.5}>0.5x Speed</option>
               <option value={1}>1.0x Speed</option>
@@ -418,7 +418,7 @@ export default function InteractiveFreeFlowGraph({ records, rootCauseData }) {
               TIMESTAMP: {selectedEvent.timestamp}
             </div>
 
-            <h3 style={{ fontSize: '1rem', color: '#fff', margin: '0.5rem 0', fontWeight: '600' }}>
+            <h3 style={{ fontSize: '1rem', color: 'var(--card-foreground)', margin: '0.5rem 0', fontWeight: '600' }}>
               {selectedEvent.title}
             </h3>
 
@@ -430,12 +430,12 @@ export default function InteractiveFreeFlowGraph({ records, rootCauseData }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.78rem' }}>
               <div>
                 <strong style={{ color: 'var(--muted-foreground)' }}>⬆️ UPSTREAM TRIGGER:</strong>
-                <p style={{ color: '#fff', marginTop: '0.15rem' }}>{selectedEvent.upstream}</p>
+                <p style={{ color: 'var(--card-foreground)', marginTop: '0.15rem' }}>{selectedEvent.upstream}</p>
               </div>
 
               <div>
                 <strong style={{ color: 'var(--muted-foreground)' }}>⬇️ DOWNSTREAM IMPACT:</strong>
-                <p style={{ color: '#fff', marginTop: '0.15rem' }}>{selectedEvent.downstream}</p>
+                <p style={{ color: 'var(--card-foreground)', marginTop: '0.15rem' }}>{selectedEvent.downstream}</p>
               </div>
 
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.6rem', marginTop: '0.4rem' }}>
@@ -451,7 +451,7 @@ export default function InteractiveFreeFlowGraph({ records, rootCauseData }) {
             <button 
               onClick={() => setSelectedEvent(null)}
               className="nav-item"
-              style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', background: 'var(--secondary)', color: '#fff' }}
+              style={{ width: '100%', marginTop: '1rem', justifyContent: 'center', background: 'var(--secondary)', color: 'var(--card-foreground)' }}
             >
               Close Inspector
             </button>
