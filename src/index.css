@@ -3,30 +3,30 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #0284c7;
-  --primary-foreground: #ffffff;
-  --secondary: #e2e8f0;
-  --muted: #f8fafc;
-  --muted-foreground: #475569;
-  --accent: #f1f5f9;
-  --border: #cbd5e1;
-  --info: #0284c7;
-  --warning: #d97706;
-  --critical: #dc2626;
-  --success: #16a34a;
-  --sidebar: #0f172a;
+  --background: #090d16;
+  --foreground: #f8fafc;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
+  --primary: #38bdf8;
+  --primary-foreground: #090d16;
+  --secondary: #1e293b;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --border: rgba(255, 255, 255, 0.12);
+  --info: #38bdf8;
+  --warning: #fbbf24;
+  --critical: #f87171;
+  --success: #34d399;
+  --sidebar: #090d16;
   --sidebar-foreground: #f8fafc;
-  --topbar: #0f172a;
+  --topbar: #0b101d;
   --topbar-foreground: #ffffff;
-  --scene: #0b101d;
-  --node-b: #7c3aed;
-  --shadow-overlay: 0 10px 40px rgba(15, 23, 42, 0.12);
+  --scene: #080c14;
+  --node-b: #a855f7;
+  --shadow-overlay: 0 20px 80px rgba(0, 0, 0, 0.6);
 }
 
 * {

@@ -24,41 +24,56 @@ import CorrelationTab from '../CorrelationTab';
 
 const LovableTelemetryScene = lazy(() => import('./telemetry-scene'));
 
-export type View = 'overview' | 'timeline' | 'connected_levels' | 'correlation' | 'ai_narrative' | 'main_event' | 'free_flow' | 'explorer';
+export type View = 
+  | 'overview' 
+  | 'timeline' 
+  | 'correlation' 
+  | 'fault_explorer' 
+  | 'operational_context' 
+  | 'ai_narrative' 
+  | 'evidence_quality'
+  | 'main_event'
+  | 'free_flow'
+  | 'explorer';
 
 const navigation = [
-  { view: 'overview', path: '/', label: '1. Mission Overview', icon: LayoutDashboard },
-  { view: 'timeline', path: '/timeline', label: '2. 3-Node Timeline', icon: Clock, badge: 'LANES' },
-  { view: 'connected_levels', path: '/connected_levels', label: '3. 4-Level Drilldown', icon: Layers, badge: 'L1-L4' },
-  { view: 'correlation', path: '/correlation', label: '4. Event Correlation', icon: GitMerge },
-  { view: 'ai_narrative', path: '/ai_narrative', label: '5. AI Incident Narrative', icon: Sparkles, badge: 'FACTS' },
-  { view: 'main_event', path: '/main_event', label: '6. Causal Incident Flow', icon: Target, badge: 'ARROWS' },
-  { view: 'free_flow', path: '/free_flow', label: '7. Free-Flow Graph', icon: Zap, badge: 'TOUCH' },
-  { view: 'explorer', path: '/explorer', label: '8. Evidence Explorer', icon: Database, badge: '5,257' }
+  { view: 'overview', label: 'Flight Overview', icon: LayoutDashboard },
+  { view: 'timeline', label: 'Incident Timeline', icon: Clock, badge: '3-LANES' },
+  { view: 'correlation', label: 'Event Correlation', icon: GitMerge, badge: 'RATIONALE' },
+  { view: 'fault_explorer', label: 'Fault & Event Explorer', icon: Layers, badge: 'LEVEL 2' },
+  { view: 'operational_context', label: 'Operational Context', icon: Network, badge: 'LEVEL 3' },
+  { view: 'ai_narrative', label: 'AI Incident Analyst', icon: Sparkles, badge: 'FACTS' },
+  { view: 'evidence_quality', label: 'Evidence & Data Quality', icon: Database, badge: 'LEVEL 4' },
+  { view: 'main_event', label: 'Causal Incident Flow', icon: Target, badge: 'ARROWS' },
+  { view: 'free_flow', label: 'Free-Flow Graph', icon: Zap }
 ] as const;
 
 const shortFamily = (family: string) => family.replace(' Log', '').replace(' Buffer', '').replace('FM ', '');
 
 const titles: Record<View, string> = {
-  overview: '1. Mission Overview & System-Wide Log Family Metrics',
-  timeline: '2. 3-Node Synchronized Incident Timeline (NODE_A, NODE_B, NODE_C)',
-  connected_levels: '3. Connected 4-Level Drill-Down Workflow (L1 to L4)',
-  correlation: '4. Cross-Node Event Correlation & Relationship Rationales',
-  ai_narrative: '5. Evidence-Linked 5-Part AI Incident Narrative & Q&A',
-  main_event: '6. LangGraph Incident-to-Incident Causal Flow (Directional Arrows)',
-  free_flow: '7. Interactive Free-Flow Causal Graph (Touch & Spring Physics)',
-  explorer: '8. Level 4 Source Evidence & Raw Payload Log Explorer'
+  overview: 'Flight Overview & Multi-System Metrics',
+  timeline: '3-Node Synchronized Incident Timeline (NODE_A, NODE_B, NODE_C)',
+  correlation: 'Event Correlation & Relationship Rationales',
+  fault_explorer: 'Fault & Event Explorer (Level 2 Detail)',
+  operational_context: 'Operational Context & System State (Level 3)',
+  ai_narrative: 'Explainable AI Incident Analyst & Evidence Narrative',
+  evidence_quality: 'Evidence & Data Quality (Level 4 Payload Explorer)',
+  main_event: 'LangGraph Incident-to-Incident Causal Flow (Directional Arrows)',
+  free_flow: 'Interactive Free-Flow Causal Graph (Touch & Spring Physics)',
+  explorer: 'Decoded Raw Payload Log Explorer'
 };
 
 const subtitles: Record<View, string> = {
-  overview: 'System-wide activity, totals by node and log family, data-quality warnings, and compact timeline.',
-  timeline: 'Horizontal lanes for NODE_A, NODE_B, and NODE_C with 5 log family markers, zoom, and time navigation.',
-  connected_levels: 'Level 1 Overview ➔ Level 2 Fault Detail ➔ Level 3 Context ➔ Level 4 Source Evidence.',
-  correlation: 'Associations with rationales: Temporal, Contextual, Possible Duplicate, No Match Found.',
+  overview: 'System-wide record totals by node and log family, critical fault counts, and compact timeline.',
+  timeline: 'Three horizontal lanes for NODE_A, NODE_B, and NODE_C with 5 log family markers, zoom, and time navigation.',
+  correlation: 'Cross-node associations with rationales: Temporal, Contextual, Possible Duplicate, No Match Found.',
+  fault_explorer: 'Detailed fault inspection: event code, duration, impact, recovery, and correlation breakdown.',
+  operational_context: 'FMS state transitions, operator interactions, software events, and cross-node activity.',
   ai_narrative: 'Strict separation of Facts (linked to Event IDs), Inferred Relationships, Uncertainty, and Next Steps.',
+  evidence_quality: 'Decoded HTML engineering payload, raw log records, source file row index, and timestamp validation.',
   main_event: 'Chronological incident flow with glowing directional arrows (➔) mapping First Incident to Next Incident.',
-  free_flow: 'Touch-interactive animatic spring physics stream mapping timestamp events across nodes.',
-  explorer: 'Decoded engineering payload evidence, source file links, search filters, and CSV data export.'
+  free_flow: 'Touch-interactive spring physics graph mapping events across nodes.',
+  explorer: 'Engineering payload evidence, source file links, and data export.'
 };
 
 function RecordDetail({ record, onClose }: { record: FlightRecord; onClose: () => void }) {
@@ -654,44 +669,63 @@ export function LovableFlightWorkspace({ view: initialView = 'overview' }: { vie
             </>
           )}
 
-          {/* VIEW 2: 3-NODE INCIDENT TIMELINE (CHANGE 2) */}
+          {/* 2. INCIDENT TIMELINE */}
           {currentView === 'timeline' && (
             <ThreeNodeTimeline 
               records={filteredRecords} 
-              onSelectEvent={(rec) => { setSelectedRecord(rec); setCurrentView('connected_levels'); }}
+              onSelectEvent={(rec) => { setSelectedRecord(rec); setCurrentView('fault_explorer'); }}
               selectedEventId={selectedRecord?.id}
             />
           )}
 
-          {/* VIEW 3: CONNECTED 4-LEVEL DRILLDOWN (CHANGE 3) */}
-          {currentView === 'connected_levels' && (
+          {/* 3. EVENT CORRELATION WITH RATIONALES */}
+          {currentView === 'correlation' && (
+            <CorrelationTab 
+              records={filteredRecords} 
+              onSelectRecord={(rec) => { setSelectedRecord(rec); setCurrentView('fault_explorer'); }} 
+            />
+          )}
+
+          {/* 4. FAULT & EVENT EXPLORER (LEVEL 2) */}
+          {currentView === 'fault_explorer' && (
             <ConnectedLevelsView 
+              initialLevel={2}
               selectedRecord={selectedRecord} 
               onSelectRecord={(rec) => setSelectedRecord(rec)} 
             />
           )}
 
-          {/* VIEW 4: EVENT CORRELATION WITH RATIONALES (CHANGE 4) */}
-          {currentView === 'correlation' && (
-            <CorrelationTab 
-              records={filteredRecords} 
-              onSelectRecord={(rec) => { setSelectedRecord(rec); setCurrentView('connected_levels'); }} 
+          {/* 5. OPERATIONAL CONTEXT (LEVEL 3) */}
+          {currentView === 'operational_context' && (
+            <ConnectedLevelsView 
+              initialLevel={3}
+              selectedRecord={selectedRecord} 
+              onSelectRecord={(rec) => setSelectedRecord(rec)} 
             />
           )}
 
-          {/* VIEW 5: EVIDENCE-LINKED AI INCIDENT NARRATIVE (CHANGE 5) */}
+          {/* 6. AI INCIDENT ANALYST */}
           {currentView === 'ai_narrative' && (
             <NaturalLanguageQA records={filteredRecords} rootCauseData={dataset.root_cause_analysis} />
           )}
 
-          {/* VIEW 6: CAUSAL INCIDENT FLOW WITH ARROWS */}
+          {/* 7. EVIDENCE & DATA QUALITY (LEVEL 4) */}
+          {currentView === 'evidence_quality' && (
+            <ConnectedLevelsView 
+              initialLevel={4}
+              selectedRecord={selectedRecord} 
+              onSelectRecord={(rec) => setSelectedRecord(rec)} 
+            />
+          )}
+
+          {/* CAUSAL INCIDENT FLOW WITH ARROWS */}
           {currentView === 'main_event' && (
             <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
               <MainEventMapper rootCauseData={dataset.root_cause_analysis} records={filteredRecords} />
             </div>
           )}
 
-          {/* VIEW 7: INTERACTIVE FREE-FLOW GRAPH */}
+          {/* INTERACTIVE FREE-FLOW GRAPH */}
           {currentView === 'free_flow' && (
             <div style={{ background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem', marginTop: '1rem' }}>
               <InteractiveFreeFlowGraph records={filteredRecords} rootCauseData={dataset.root_cause_analysis} />

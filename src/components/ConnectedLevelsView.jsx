@@ -5,9 +5,15 @@ import {
 } from 'lucide-react';
 import { records as allRecords, logFamilyCategories, familyColors } from '../data/flight-data';
 
-export default function ConnectedLevelsView({ selectedRecord: propRecord, onSelectRecord }) {
-  const [activeLevel, setActiveLevel] = useState(propRecord ? 2 : 1);
+export default function ConnectedLevelsView({ selectedRecord: propRecord, onSelectRecord, initialLevel = 1 }) {
+  const [activeLevel, setActiveLevel] = useState(initialLevel || (propRecord ? 2 : 1));
   const [selectedRecord, setSelectedRecord] = useState(propRecord || allRecords[1]);
+
+  React.useEffect(() => {
+    if (initialLevel) {
+      setActiveLevel(initialLevel);
+    }
+  }, [initialLevel]);
 
   const handleSelectEvent = (rec) => {
     setSelectedRecord(rec);
